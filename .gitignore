@@ -34,6 +34,21 @@ bower_components
 # node-waf configuration
 .lock-wscript
 
+/node_modules
+/build
+.DS_Store
+yarn-error.log
+.env*
+.eslintcache
+/.idea
+dist
+electron-builder.yml
+/.yalc
+yalc.lock
+# testing
+/coverage/
+src/types/contracts/
+tsconfig.tsbuildinfo
 # Compiled binary addons (https://nodejs.org/api/addons.html)
 build/Release
 
