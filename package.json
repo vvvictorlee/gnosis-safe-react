@@ -37,7 +37,7 @@
     "prettier": "prettier './src/**/*.{js,jsx,ts,tsx}'",
     "release": "electron-builder --mac --linux --windows -p always",
     "start-mainnet": "REACT_APP_NETWORK=mainnet yarn start",
-    "start": "rescripts start",
+    "start": "PORT=3223 rescripts start",
     "test": "rescripts test --env=jsdom",
     "test:coverage": "yarn test --coverage --watchAll=false",
     "coveralls": "cat ./coverage/lcov.info | coveralls",
