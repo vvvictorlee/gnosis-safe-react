@@ -1,6 +1,6 @@
 import { AbiItem } from 'web3-utils'
-import GnosisSafeSol from '@gnosis.pm/safe-contracts/build/contracts/GnosisSafe.json'
-import ProxyFactorySol from '@gnosis.pm/safe-contracts/build/contracts/GnosisSafeProxyFactory.json'
+import GnosisSafeSol from '../../safe-contracts/build/contracts/GnosisSafe.json'
+import ProxyFactorySol from '../../safe-contracts/build/contracts/GnosisSafeProxyFactory.json'
 import Web3 from 'web3'
 
 import { ETHEREUM_NETWORK } from 'src/config/networks/network.d'

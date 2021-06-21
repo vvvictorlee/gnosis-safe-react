@@ -12,5 +12,5 @@ export default {
   xdai,
   energy_web_chain,
   volta,
-  hsctest
+  hsctest,
 }
