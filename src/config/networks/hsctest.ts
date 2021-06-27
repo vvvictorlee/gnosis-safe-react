@@ -2,15 +2,15 @@ import xDaiLogo from 'src/config/assets/token_xdai.svg'
 import { EnvironmentSettings, ETHEREUM_NETWORK, FEATURES, NetworkConfig, WALLETS } from 'src/config/networks/network.d'
 
 const baseConfig: EnvironmentSettings = {
-  clientGatewayUrl: 'https://gnosis-safe.hoosmartchain.com',
-  txServiceUrl: 'https://gnosis-safe.hoosmartchain.com',
+  clientGatewayUrl: 'https://safe-client.hoosmartchain.com/v1',
+  txServiceUrl: 'https://safe-transaction.hoosmartchain.com/api/v1',
   safeUrl: 'https://gnosis-safe.hoosmartchain.com',
   safeAppsUrl: 'https://gnosis-safe.hoosmartchain.com',
   gasPrice: 1e9,
   rpcServiceUrl: 'https://http-testnet.hoosmartchain.com',
-  networkExplorerName: 'Blockscout',
-  networkExplorerUrl: 'https://blockscout.com/poa/xdai',
-  networkExplorerApiUrl: 'https://blockscout.com/poa/xdai/api',
+  networkExplorerName: 'hsctest',
+  networkExplorerUrl: 'https://testnet.hscscan.com',
+  networkExplorerApiUrl: 'https://testnet.hscscan.com',
 }
 
 const hsctest: NetworkConfig = {
