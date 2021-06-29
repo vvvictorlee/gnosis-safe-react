@@ -2,18 +2,18 @@ import hscLogo from 'src/config/assets/token_hsc.svg'
 import { EnvironmentSettings, ETHEREUM_NETWORK, FEATURES, NetworkConfig, WALLETS } from 'src/config/networks/network.d'
 
 const baseConfig: EnvironmentSettings = {
-  clientGatewayUrl: 'https://safe-client.hoosmartchain.com/v1',
-  txServiceUrl: 'https://safe-transaction.hoosmartchain.com/api/v1',
-  safeUrl: 'https://gnosis-safe.hoosmartchain.com/',
+  clientGatewayUrl: 'https://safe-client-app.hoosmartchain.com/v1',
+  txServiceUrl: 'https://safe-transaction-app.hoosmartchain.com/api/v1',
+  safeUrl: 'https://gnosis-safe-app.hoosmartchain.com/',
   safeAppsUrl: 'https://gnosis-safe.hoosmartchain.com',
   gasPrice: 1e9,
-  rpcServiceUrl: 'https://http-testnet2.hoosmartchain.com',
-  networkExplorerName: 'hsctest',
-  networkExplorerUrl: 'https://testnet.hscscan.com',
-  networkExplorerApiUrl: 'https://testnet.hscscan.com/api',
+  rpcServiceUrl: 'https://http-mainnet2.hoosmartchain.com',
+  networkExplorerName: 'hsc',
+  networkExplorerUrl: 'https://hooscan.com',
+  networkExplorerApiUrl: 'https://hooscan.com/api',
 }
 
-const hsctest: NetworkConfig = {
+const hsc: NetworkConfig = {
   environment: {
     dev: {
       ...baseConfig,
@@ -23,7 +23,7 @@ const hsctest: NetworkConfig = {
     },
     production: {
       ...baseConfig,
-      safeAppsUrl: 'https://safe-apps.hoosmartchain.com',
+      safeAppsUrl: 'https://safe-apps-app.hoosmartchain.com',
     },
   },
   network: {
@@ -56,4 +56,4 @@ const hsctest: NetworkConfig = {
   disabledFeatures: [FEATURES.DOMAIN_LOOKUP],
 }
 
-export default hsctest
+export default hsc

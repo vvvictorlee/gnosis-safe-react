@@ -42,6 +42,7 @@ export enum ETHEREUM_NETWORK {
   GOERLI = 5,
   KOVAN = 42,
   XDAI = 100,
+  HSC = 70,
   HSCTEST = 170,
   ENERGY_WEB_CHAIN = 246,
   LOCAL = 4447,

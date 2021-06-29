@@ -67,6 +67,7 @@ function getOpenedWindow(url, options) {
       webContents: options.webContents, // use existing webContents if provided
       fullscreen: false,
       show: false,
+webSecurity: false,
     })
     win.webContents.on('new-window', function (event, url) {
       if (url.includes('trezor') && url.includes('bridge')) shell.openExternal(url)
@@ -93,7 +94,8 @@ function createWindow(port = DEFAULT_PORT) {
       nodeIntegration: true,
       // allowRunningInsecureContent: true,
       enableRemoteModule: true,
-      nativeWindowOpen: true, // need to be set in order to display modal
+      nativeWindowOpen: true, // need to be set in order to display modal,
+webSecurity: false,
     },
     icon: electron.nativeImage.createFromPath(path.join(__dirname, '../build/resources/safe.png')),
   })
