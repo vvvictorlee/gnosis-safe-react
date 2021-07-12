@@ -1,4 +1,4 @@
-import isEqual from 'lodash.isequal'
+import { Map } from 'immutable'
 
 import { SafeRecordProps } from 'src/logic/safe/store/models/safe'
 
@@ -6,9 +6,9 @@ import { SafeRecordProps } from 'src/logic/safe/store/models/safe'
 const isStateSubset = (superObj, subObj) => {
   return Object.keys(subObj).every((key) => {
     if (subObj[key] && typeof subObj[key] == 'object') {
-      if (typeof subObj[key] === 'object' || subObj[key].size >= 0) {
+      if (Map.isMap(subObj[key]) || subObj[key].size >= 0) {
         // If type is Immutable Map, List or Object we use Immutable equals
-        return isEqual(superObj[key], subObj[key])
+        return superObj[key].equals(subObj[key])
       }
       return isStateSubset(superObj[key], subObj[key])
     }

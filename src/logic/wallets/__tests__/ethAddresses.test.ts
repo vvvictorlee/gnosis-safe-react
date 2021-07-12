@@ -9,6 +9,7 @@ import {
   shortVersionOf,
 } from 'src/logic/wallets/ethAddresses'
 import makeSafe from 'src/logic/safe/store/models/safe'
+import { makeOwner } from 'src/logic/safe/store/models/owner'
 
 describe('src/logic/wallets/ethAddresses', () => {
   describe('Utility function: sameAddress', () => {
@@ -112,7 +113,7 @@ describe('src/logic/wallets/ethAddresses', () => {
     it("Should return false if there's no `userAccount`", () => {
       // given
       const userAddress = null
-      const owners = [userAddress]
+      const owners = List([makeOwner({ address: userAddress })])
       const safeInstance = makeSafe({ owners })
       const expectedResult = false
 
@@ -138,7 +139,7 @@ describe('src/logic/wallets/ethAddresses', () => {
     it("Should return true if `userAccount` is not in the list of Safe's owners", () => {
       // given
       const userAddress = 'address1'
-      const owners = [userAddress]
+      const owners = List([makeOwner({ address: userAddress })])
       const safeInstance = makeSafe({ owners })
       const expectedResult = true
 
@@ -152,7 +153,7 @@ describe('src/logic/wallets/ethAddresses', () => {
       // given
       const userAddress = 'address1'
       const userAddress2 = 'address2'
-      const owners = [userAddress]
+      const owners = List([makeOwner({ address: userAddress })])
       const safeInstance = makeSafe({ owners })
       const expectedResult = false
 
@@ -169,8 +170,8 @@ describe('src/logic/wallets/ethAddresses', () => {
       // given
       const userAddress = 'address1'
       const userAddress2 = 'address2'
-      const owners1 = [userAddress]
-      const owners2 = [userAddress2]
+      const owners1 = List([makeOwner({ address: userAddress })])
+      const owners2 = List([makeOwner({ address: userAddress2 })])
       const safeInstance = makeSafe({ owners: owners1 })
       const safeInstance2 = makeSafe({ owners: owners2 })
       const safesList = List([safeInstance, safeInstance2])
@@ -187,8 +188,8 @@ describe('src/logic/wallets/ethAddresses', () => {
       const userAddress = 'address1'
       const userAddress2 = 'address2'
       const userAddress3 = 'address3'
-      const owners1 = [userAddress3]
-      const owners2 = [userAddress2]
+      const owners1 = List([makeOwner({ address: userAddress3 })])
+      const owners2 = List([makeOwner({ address: userAddress2 })])
       const safeInstance = makeSafe({ owners: owners1 })
       const safeInstance2 = makeSafe({ owners: owners2 })
       const safesList = List([safeInstance, safeInstance2])

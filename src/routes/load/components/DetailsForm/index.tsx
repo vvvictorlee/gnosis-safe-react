@@ -1,7 +1,7 @@
 import InputAdornment from '@material-ui/core/InputAdornment'
 import { makeStyles } from '@material-ui/core/styles'
 import CheckCircle from '@material-ui/icons/CheckCircle'
-import React, { ReactElement, ReactNode } from 'react'
+import * as React from 'react'
 import { FormApi } from 'final-form'
 
 import { ScanQRWrapper } from 'src/components/ScanQRModal/ScanQRWrapper'
@@ -15,7 +15,7 @@ import {
   noErrorsOn,
   required,
   composeValidators,
-  validAddressBookName,
+  minMaxLength,
 } from 'src/components/forms/validator'
 import Block from 'src/components/layout/Block'
 import Col from 'src/components/layout/Col'
@@ -54,8 +54,8 @@ export const safeFieldsValidation = async (values): Promise<Record<string, strin
     return errors
   }
 
-  // If getSafeInfo does not provide data, it's not a valid safe.
-  const safeInfo = await getSafeInfo(address).catch(() => null)
+  // if getSafeInfo does not provide data, it's not a valid safe.
+  const safeInfo = await getSafeInfo(address)
   if (!safeInfo) {
     errors[FIELD_LOAD_ADDRESS] = SAFE_ADDRESS_NOT_VALID
   }
@@ -68,7 +68,7 @@ interface DetailsFormProps {
   form: FormApi
 }
 
-const DetailsForm = ({ errors, form }: DetailsFormProps): ReactElement => {
+const DetailsForm = ({ errors, form }: DetailsFormProps): React.ReactElement => {
   const classes = useStyles()
 
   const handleScan = (value: string, closeQrModal: () => void): void => {
@@ -80,22 +80,11 @@ const DetailsForm = ({ errors, form }: DetailsFormProps): ReactElement => {
     <>
       <Block margin="md">
         <Paragraph color="primary" noMargin size="md">
-          You are about to add an existing Gnosis Safe. First, choose a name and enter the Safe address. The name is
+          You are about to load an existing Gnosis Safe. First, choose a name and enter the Safe address. The name is
           only stored locally and will never be shared with Gnosis or any third parties.
           <br />
           Your connected wallet does not have to be the owner of this Safe. In this case, the interface will provide you
           a read-only view.
-        </Paragraph>
-
-        <Paragraph color="primary" size="md" className={classes.links}>
-          Don&apos;t have the address of the Safe you created?{' '}
-          <a
-            href="https://help.gnosis-safe.io/en/articles/4971293-i-don-t-remember-my-safe-address-where-can-i-find-it"
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            This article explains how to find it.
-          </a>
         </Paragraph>
       </Block>
       <Block className={classes.root}>
@@ -103,10 +92,10 @@ const DetailsForm = ({ errors, form }: DetailsFormProps): ReactElement => {
           <Field
             component={TextField}
             name={FIELD_LOAD_NAME}
-            placeholder="Name of the Safe*"
+            placeholder="Name of the Safe"
             text="Safe name"
             type="text"
-            validate={composeValidators(required, validAddressBookName)}
+            validate={composeValidators(required, minMaxLength(1, 50))}
             testId="load-safe-name-field"
           />
         </Col>
@@ -156,11 +145,13 @@ const DetailsForm = ({ errors, form }: DetailsFormProps): ReactElement => {
 }
 
 const DetailsPage = () =>
-  function LoadSafeDetails(controls: ReactNode, { errors, form }: StepperPageFormProps): ReactElement {
+  function LoadSafeDetails(controls: React.ReactNode, { errors, form }: StepperPageFormProps): React.ReactElement {
     return (
-      <OpenPaper controls={controls}>
-        <DetailsForm errors={errors} form={form} />
-      </OpenPaper>
+      <>
+        <OpenPaper controls={controls}>
+          <DetailsForm errors={errors} form={form} />
+        </OpenPaper>
+      </>
     )
   }
 

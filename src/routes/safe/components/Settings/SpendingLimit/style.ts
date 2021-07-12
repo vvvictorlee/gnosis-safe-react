@@ -21,7 +21,7 @@ export const useStyles = makeStyles(
     },
     hide: {
       '&:hover': {
-        backgroundColor: '#f7f5f5',
+        backgroundColor: '#fff3e2',
       },
       '&:hover $actions': {
         visibility: 'initial',
@@ -73,7 +73,7 @@ export const useStyles = makeStyles(
     modalHeading: {
       boxSizing: 'border-box',
       justifyContent: 'space-between',
-      height: '74px',
+      maxHeight: '75px',
       padding: `${sm} ${lg}`,
     },
     modalContainer: {
@@ -120,12 +120,13 @@ export const useStyles = makeStyles(
         cursor: 'pointer',
       },
     },
+    modal: {
+      height: 'auto',
+      maxWidth: 'calc(100% - 30px)',
+      overflow: 'hidden',
+    },
     amountInput: {
       width: '100% !important',
-    },
-    gasCostsContainer: {
-      backgroundColor: background,
-      padding: `0 ${lg}`,
     },
   }),
 )

@@ -77,7 +77,7 @@ export const WelcomeLayout = ({ isOldMultisigMigration }: Props): React.ReactEle
     <Block>
       {/* Title */}
       <Title size="md" strong>
-        Welcome to Gnosis Safe.
+        Welcome to BSC Gnosis Safe Multisig.
       </Title>
 
       {/* Subtitle */}
@@ -89,7 +89,8 @@ export const WelcomeLayout = ({ isOldMultisigMigration }: Props): React.ReactEle
           </>
         ) : (
           <>
-            Gnosis Safe is the most trusted platform to manage digital assets. <br /> Here is how to get started:{' '}
+            Gnosis Safe Multisig is the most trusted platform to manage digital assets. <br /> Here is how to get
+            started:{' '}
           </>
         )}
       </Title>
@@ -107,7 +108,8 @@ export const WelcomeLayout = ({ isOldMultisigMigration }: Props): React.ReactEle
               </StyledTitle>
             </TitleWrapper>
             <Text size="xl">
-              Gnosis Safe supports a wide range of wallets that you can choose to interact with your Safe.
+              Gnosis Safe Multisig supports a wide range of wallets that you can choose to be one of the authentication
+              factors.
             </Text>
             <StyledButtonLink textSize="xl" color="primary" iconType="externalLink" iconSize="sm">
               <LinkSRC
@@ -115,9 +117,9 @@ export const WelcomeLayout = ({ isOldMultisigMigration }: Props): React.ReactEle
                 href="https://help.gnosis-safe.io/en/articles/4689442-why-do-i-need-to-connect-a-wallet"
                 target="_blank"
                 rel="noopener noreferrer"
-                title="More info about: Why do I need to connect a wallet?"
+                title="More info about: Why do I need to connect wallet?"
               >
-                Why do I need to connect a wallet?
+                Why do I need to connect wallet?
               </LinkSRC>
             </StyledButtonLink>
             <StyledButton
@@ -146,7 +148,7 @@ export const WelcomeLayout = ({ isOldMultisigMigration }: Props): React.ReactEle
                 </StyledTitle>
               </TitleWrapper>
               <Text size="xl">
-                Create a new Safe that is controlled by one or multiple owners. <br />
+                Create a new Safe Multisig that is controlled by one or multiple owners. <br />
                 You will be required to pay a network fee for creating your new Safe.
               </Text>
               <StyledButton size="lg" color="primary" variant="contained" component={Link} to={OPEN_ADDRESS}>
@@ -161,11 +163,11 @@ export const WelcomeLayout = ({ isOldMultisigMigration }: Props): React.ReactEle
             {/* Load safe */}
             <CardsCol>
               <StyledTitleOnly size="sm" strong withoutMargin>
-                Add existing Safe
+                Load existing Safe
               </StyledTitleOnly>
               <Text size="xl">
-                Already have a Safe? Do you want to access your Safe from a different device? Easily add it using your
-                Safe address.
+                Already have a Safe? Do you want to access your Safe Multisig from a different device? Easily load your
+                Safe Multisig using your Safe address.
               </Text>
               <StyledButton
                 variant="bordered"
@@ -177,7 +179,7 @@ export const WelcomeLayout = ({ isOldMultisigMigration }: Props): React.ReactEle
                 to={LOAD_ADDRESS}
               >
                 <Text size="xl" color="secondary">
-                  Add existing Safe
+                  Load existing Safe
                 </Text>
               </StyledButton>
             </CardsCol>

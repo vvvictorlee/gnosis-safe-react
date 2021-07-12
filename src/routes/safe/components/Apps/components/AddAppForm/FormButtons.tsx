@@ -1,16 +1,27 @@
+import { Button, Divider } from '@gnosis.pm/safe-react-components'
 import React, { ReactElement, useMemo } from 'react'
 import { useFormState } from 'react-final-form'
+import styled from 'styled-components'
 
-import { Modal } from 'src/components/Modal'
-import { SafeApp } from 'src/routes/safe/components/Apps/types'
+import GnoButton from 'src/components/layout/Button'
+import { SafeApp } from 'src/routes/safe/components/Apps/types.d'
 import { isAppManifestValid } from 'src/routes/safe/components/Apps/utils'
+
+const StyledDivider = styled(Divider)`
+  margin: 16px -24px;
+`
+
+const ButtonsContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+`
 
 interface Props {
   appInfo: SafeApp
   onCancel: () => void
 }
 
-export const FormButtons = ({ appInfo, onCancel }: Props): ReactElement => {
+const FormButtons = ({ appInfo, onCancel }: Props): ReactElement => {
   const { valid, validating, visited } = useFormState({
     subscription: { valid: true, validating: true, visited: true },
   })
@@ -23,9 +34,18 @@ export const FormButtons = ({ appInfo, onCancel }: Props): ReactElement => {
   }, [validating, valid, visited, appInfo])
 
   return (
-    <Modal.Footer.Buttons
-      cancelButtonProps={{ onClick: onCancel }}
-      confirmButtonProps={{ disabled: isSubmitDisabled, text: 'Add' }}
-    />
+    <>
+      <StyledDivider />
+      <ButtonsContainer>
+        <Button size="md" onClick={onCancel} color="secondary">
+          Cancel
+        </Button>
+        <GnoButton color="primary" variant="contained" type="submit" disabled={isSubmitDisabled}>
+          Add
+        </GnoButton>
+      </ButtonsContainer>
+    </>
   )
 }
+
+export default FormButtons

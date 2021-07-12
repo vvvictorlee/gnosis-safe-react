@@ -1,6 +1,6 @@
 import IconButton from '@material-ui/core/IconButton'
 import ChevronLeft from '@material-ui/icons/ChevronLeft'
-import React, { ReactElement } from 'react'
+import * as React from 'react'
 
 import Stepper, { StepperPage } from 'src/components/Stepper'
 import Block from 'src/components/layout/Block'
@@ -15,7 +15,7 @@ import { secondary, sm } from 'src/theme/variables'
 import { LoadFormValues } from '../container/Load'
 
 const steps = ['Name and address', 'Owners', 'Review']
-const buttonLabels = ['Next', 'Review', 'Add']
+const buttonLabels = ['Next', 'Review', 'Load']
 
 const iconStyle = {
   color: secondary,
@@ -34,12 +34,13 @@ const formMutators = {
 }
 
 interface LayoutProps {
+  network: string
   provider?: string
   userAddress: string
   onLoadSafeSubmit: (values: LoadFormValues) => void
 }
 
-const Layout = ({ onLoadSafeSubmit, provider, userAddress }: LayoutProps): ReactElement => (
+const Layout = ({ network, onLoadSafeSubmit, provider, userAddress }: LayoutProps): React.ReactElement => (
   <>
     {provider ? (
       <Block>
@@ -47,7 +48,7 @@ const Layout = ({ onLoadSafeSubmit, provider, userAddress }: LayoutProps): React
           <IconButton disableRipple onClick={back} style={iconStyle}>
             <ChevronLeft />
           </IconButton>
-          <Heading tag="h2">Add existing Safe</Heading>
+          <Heading tag="h2">Load existing Safe</Heading>
         </Row>
         <Stepper<LoadFormValues>
           buttonLabels={buttonLabels}
@@ -57,8 +58,8 @@ const Layout = ({ onLoadSafeSubmit, provider, userAddress }: LayoutProps): React
           testId="load-safe-form"
         >
           <StepperPage validate={safeFieldsValidation} component={DetailsForm} />
-          <StepperPage component={OwnerList} />
-          <StepperPage userAddress={userAddress} component={ReviewInformation} />
+          <StepperPage network={network} component={OwnerList} />
+          <StepperPage network={network} userAddress={userAddress} component={ReviewInformation} />
         </Stepper>
       </Block>
     ) : (

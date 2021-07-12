@@ -6,7 +6,7 @@ export const styles = createStyles({
     padding: `${sm} ${lg}`,
     justifyContent: 'flex-start',
     boxSizing: 'border-box',
-    height: '74px',
+    maxHeight: '75px',
   },
   annotation: {
     color: secondaryText,
@@ -28,6 +28,5 @@ export const styles = createStyles({
   buttonRow: {
     height: '84px',
     justifyContent: 'center',
-    gap: '16px',
   },
 })

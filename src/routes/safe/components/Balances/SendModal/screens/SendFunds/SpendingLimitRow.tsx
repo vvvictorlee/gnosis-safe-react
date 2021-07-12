@@ -43,9 +43,9 @@ export const SpendingLimitRow = ({ tokenSpendingLimit, selectedToken }: Spending
               value={value || 'multiSig'}
               onRadioChange={mutators.setTxType}
               options={[
-                { label: 'Multisig transaction', value: 'multiSig' },
+                { label: 'Multisig Transaction', value: 'multiSig' },
                 {
-                  label: `Spending limit transaction (${availableAmount} ${selectedToken.symbol})`,
+                  label: `Spending Limit Transaction (${availableAmount} ${selectedToken.symbol})`,
                   value: 'spendingLimit',
                 },
               ]}

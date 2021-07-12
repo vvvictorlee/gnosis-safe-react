@@ -1,7 +1,6 @@
 import { Loader, Stepper } from '@gnosis.pm/safe-react-components'
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { useDispatch, useSelector } from 'react-redux'
 
 import { ErrorFooter } from 'src/routes/opening/components/Footer'
 import { isConfirmationStep, steps } from './steps'
@@ -12,22 +11,20 @@ import Img from 'src/components/layout/Img'
 import Paragraph from 'src/components/layout/Paragraph'
 import { instantiateSafeContracts } from 'src/logic/contracts/safeContracts'
 import { EMPTY_DATA } from 'src/logic/wallets/ethTransactions'
-import { getWeb3, isTxPendingError } from 'src/logic/wallets/getWeb3'
-import { background, connected, fontColor } from 'src/theme/variables'
+import { getWeb3 } from 'src/logic/wallets/getWeb3'
+import { background, connected } from 'src/theme/variables'
 import { providerNameSelector } from 'src/logic/wallets/store/selectors'
+import { useSelector } from 'react-redux'
 
-import SuccessSvg from './assets/safe-created.svg'
+import LoaderDotsSvg from './assets/loader-dots.svg'
+import SuccessSvg from './assets/success.svg'
 import VaultErrorSvg from './assets/vault-error.svg'
-import VaultLoading from './assets/creation-process.gif'
-import { TransactionReceipt } from 'web3-core'
-import { Errors, logError } from 'src/logic/exceptions/CodedException'
-import { NOTIFICATIONS } from 'src/logic/notifications'
-import enqueueSnackbar from 'src/logic/notifications/store/actions/enqueueSnackbar'
+import VaultSvg from './assets/vault.svg'
 
 const Wrapper = styled.div`
   display: grid;
   grid-template-columns: 250px auto;
-  grid-template-rows: 43px auto;
+  grid-template-rows: 62px auto;
   margin-bottom: 30px;
 `
 
@@ -46,32 +43,26 @@ const Body = styled.div`
   grid-column: 2;
   grid-row: 2;
   text-align: center;
-  background-color: ${({ theme }) => theme.colors.white};
+  background-color: #ffffff;
   border-radius: 5px;
   min-width: 700px;
-  padding-top: 70px;
+  padding-top: 50px;
   box-shadow: 0 0 10px 0 rgba(33, 48, 77, 0.1);
 
   display: grid;
-  grid-template-rows: 100px 50px 110px 1fr;
+  grid-template-rows: 100px 50px 70px 60px 100px;
 `
 
 const CardTitle = styled.div`
   font-size: 20px;
-  padding-top: 10px;
 `
-
-interface FullParagraphProps {
-  inversecolors: string
-  $stepIndex: number
-}
-
-const FullParagraph = styled(Paragraph)<FullParagraphProps>`
-  background-color: ${({ $stepIndex }) => ($stepIndex === 0 ? connected : background)};
-  color: ${({ theme, $stepIndex }) => ($stepIndex === 0 ? theme.colors.white : fontColor)};
-  padding: 28px;
-  font-size: 20px;
+const FullParagraph = styled(Paragraph)`
+  background-color: ${(p) => (p.inverseColors ? connected : background)};
+  color: ${(p) => (p.inverseColors ? background : connected)};
+  padding: 24px;
+  font-size: 16px;
   margin-bottom: 16px;
+
   transition: color 0.3s ease-in-out, background-color 0.3s ease-in-out;
 `
 
@@ -81,12 +72,17 @@ const BodyImage = styled.div`
 const BodyDescription = styled.div`
   grid-row: 2;
 `
-const BodyInstruction = styled.div`
+const BodyLoader = styled.div`
   grid-row: 3;
-  margin: 27px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`
+const BodyInstruction = styled.div`
+  grid-row: 4;
 `
 const BodyFooter = styled.div`
-  grid-row: 4;
+  grid-row: 5;
 
   padding: 10px 0;
   display: flex;
@@ -99,21 +95,16 @@ const BackButton = styled(Button)`
   margin: 20px auto 0;
 `
 
-type Props = {
-  creationTxHash?: string
-  submittedPromise?: Promise<TransactionReceipt>
-  onRetry: () => void
-  onSuccess: (createdSafeAddress: string) => void
-  onCancel: () => void
-}
+// type Props = {
+//   provider: string
+//   creationTxHash: Promise<any>
+//   submittedPromise: Promise<any>
+//   onRetry: () => void
+//   onSuccess: () => void
+//   onCancel: () => void
+// }
 
-export const SafeDeployment = ({
-  creationTxHash,
-  onCancel,
-  onRetry,
-  onSuccess,
-  submittedPromise,
-}: Props): React.ReactElement => {
+const SafeDeployment = ({ creationTxHash, onCancel, onRetry, onSuccess, submittedPromise }): React.ReactElement => {
   const [loading, setLoading] = useState(true)
   const [stepIndex, setStepIndex] = useState(0)
   const [safeCreationTxHash, setSafeCreationTxHash] = useState('')
@@ -124,7 +115,6 @@ export const SafeDeployment = ({
   const [waitingSafeDeployed, setWaitingSafeDeployed] = useState(false)
   const [continueButtonDisabled, setContinueButtonDisabled] = useState(false)
   const provider = useSelector(providerNameSelector)
-  const dispatch = useDispatch()
 
   const confirmationStep = isConfirmationStep(stepIndex)
 
@@ -133,26 +123,13 @@ export const SafeDeployment = ({
     onSuccess(createdSafeAddress)
   }
 
-  const showSnackbarError = useCallback(
-    (err: Error) => {
-      if (isTxPendingError(err)) {
-        dispatch(enqueueSnackbar({ ...NOTIFICATIONS.TX_PENDING_MSG }))
-      }
-    },
-    [dispatch],
-  )
-
-  const onError = useCallback(
-    (error: Error) => {
-      setIntervalStarted(false)
-      setWaitingSafeDeployed(false)
-      setContinueButtonDisabled(false)
-      setError(true)
-      logError(Errors._800, error.message)
-      showSnackbarError(error)
-    },
-    [setIntervalStarted, setWaitingSafeDeployed, setContinueButtonDisabled, setError, showSnackbarError],
-  )
+  const onError = (error) => {
+    setIntervalStarted(false)
+    setWaitingSafeDeployed(false)
+    setContinueButtonDisabled(false)
+    setError(true)
+    console.error(error)
+  }
 
   // discard click event value
   const onRetryTx = () => {
@@ -167,7 +144,7 @@ export const SafeDeployment = ({
     }
 
     if (stepIndex <= 4) {
-      return VaultLoading
+      return VaultSvg
     }
 
     return SuccessSvg
@@ -190,20 +167,15 @@ export const SafeDeployment = ({
       return
     }
 
-    const handlePromise = async () => {
-      setStepIndex(0)
-      try {
-        const receipt = await submittedPromise
-        setSafeCreationTxHash(receipt.transactionHash)
+    setStepIndex(0)
+    submittedPromise
+      .once('transactionHash', (txHash) => {
+        setSafeCreationTxHash(txHash)
         setStepIndex(1)
         setIntervalStarted(true)
-      } catch (err) {
-        onError(err)
-      }
-    }
-
-    handlePromise()
-  }, [submittedPromise, onError])
+      })
+      .on('error', onError)
+  }, [submittedPromise])
 
   // recovering safe creation from txHash
   useEffect(() => {
@@ -268,7 +240,7 @@ export const SafeDeployment = ({
     return () => {
       clearInterval(interval)
     }
-  }, [creationTxHash, submittedPromise, intervalStarted, stepIndex, error, onError])
+  }, [creationTxHash, submittedPromise, intervalStarted, stepIndex, error])
 
   useEffect(() => {
     let interval
@@ -284,31 +256,21 @@ export const SafeDeployment = ({
           safeAddress = receipt.events.ProxyCreation.returnValues.proxy
         } else {
           // get the address for the just created safe
-          //   {
-          //     type: 'address',
-          //     name: 'ProxyCreation',
-          //   },
           const events = web3.eth.abi.decodeLog(
             [
               {
-                indexed: false,
-                name: 'proxy',
                 type: 'address',
-              },
-              {
-                indexed: false,
-                name: 'singleton',
-                type: 'address',
+                name: 'ProxyCreation',
               },
             ],
-            receipt.logs[1].data,
-            receipt.logs[1].topics,
+            receipt.logs[0].data,
+            receipt.logs[0].topics,
           )
-
           safeAddress = events[0]
         }
 
         setCreatedSafeAddress(safeAddress)
+
         interval = setInterval(async () => {
           const code = await web3.eth.getCode(safeAddress)
           if (code !== EMPTY_DATA) {
@@ -354,26 +316,20 @@ export const SafeDeployment = ({
       </Nav>
       <Body>
         <BodyImage>
-          <Img alt="Vault" height={92} src={getImage()} />
+          <Img alt="Vault" height={75} src={getImage()} />
         </BodyImage>
 
         <BodyDescription>
           <CardTitle>{steps[stepIndex].description || steps[stepIndex].label}</CardTitle>
         </BodyDescription>
 
-        {steps[stepIndex].instruction && (
-          <BodyInstruction>
-            <FullParagraph
-              color="primary"
-              inversecolors={confirmationStep.toString()}
-              noMargin
-              size="md"
-              $stepIndex={stepIndex}
-            >
-              {error ? 'You can Cancel or Retry the Safe creation process.' : steps[stepIndex].instruction}
-            </FullParagraph>
-          </BodyInstruction>
-        )}
+        <BodyLoader>{!error && stepIndex <= 4 && <Img alt="Loader dots" src={LoaderDotsSvg} />}</BodyLoader>
+
+        <BodyInstruction>
+          <FullParagraph color="primary" inverseColors={confirmationStep} noMargin size="md">
+            {error ? 'You can Cancel or Retry the Safe creation process.' : steps[stepIndex].instruction}
+          </FullParagraph>
+        </BodyInstruction>
 
         <BodyFooter>
           {FooterComponent ? (
@@ -388,12 +344,11 @@ export const SafeDeployment = ({
           ) : null}
         </BodyFooter>
       </Body>
-
-      {stepIndex !== 0 && (
-        <BackButton color="primary" minWidth={140} onClick={onCancel} data-testid="safe-creation-back-btn">
-          Back
-        </BackButton>
-      )}
+      <BackButton color="primary" minWidth={140} onClick={onCancel} data-testid="safe-creation-back-btn">
+        Back
+      </BackButton>
     </Wrapper>
   )
 }
+
+export default SafeDeployment

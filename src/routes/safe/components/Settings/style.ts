@@ -127,7 +127,6 @@ export const styles = createStyles({
   },
   links: {
     textDecoration: 'underline',
-    marginRight: '6px',
     '&:hover': {
       cursor: 'pointer',
     },

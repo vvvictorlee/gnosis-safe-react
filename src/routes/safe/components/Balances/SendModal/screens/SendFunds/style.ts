@@ -6,7 +6,7 @@ export const styles = createStyles({
     padding: `${md} ${lg}`,
     justifyContent: 'flex-start',
     boxSizing: 'border-box',
-    height: '74px',
+    maxHeight: '75px',
   },
   annotation: {
     letterSpacing: '-1px',
@@ -26,12 +26,18 @@ export const styles = createStyles({
   },
   formContainer: {
     padding: `${md} ${lg}`,
-    minHeight: '216px',
   },
   buttonRow: {
     height: '84px',
     justifyContent: 'center',
-    gap: '16px',
+    '& > button': {
+      fontFamily: 'Averta',
+      fontSize: md,
+    },
+  },
+  submitButton: {
+    boxShadow: '1px 2px 10px 0 rgba(212, 212, 211, 0.59)',
+    marginLeft: '15px',
   },
   selectAddress: {
     cursor: 'pointer',

@@ -1,5 +1,5 @@
 import { background, border, lg, secondaryText, sm } from 'src/theme/variables'
-import { createStyles } from '@material-ui/core/styles'
+import { createStyles } from '@material-ui/core'
 
 export const styles = createStyles({
   root: {
@@ -9,7 +9,7 @@ export const styles = createStyles({
     padding: `${sm} ${lg}`,
     justifyContent: 'flex-start',
     boxSizing: 'border-box',
-    height: '74px',
+    maxHeight: '75px',
   },
   annotation: {
     color: secondaryText,
@@ -34,7 +34,6 @@ export const styles = createStyles({
   buttonRow: {
     height: '84px',
     justifyContent: 'center',
-    gap: '16px',
   },
   details: {
     padding: lg,
@@ -48,6 +47,9 @@ export const styles = createStyles({
   ownersTitle: {
     padding: lg,
   },
+  address: {
+    marginRight: sm,
+  },
   owner: {
     padding: sm,
     alignItems: 'center',
@@ -56,10 +58,16 @@ export const styles = createStyles({
     textOverflow: 'ellipsis',
     overflow: 'hidden',
   },
+  userName: {
+    whiteSpace: 'nowrap',
+  },
   selectedOwner: {
     padding: sm,
     alignItems: 'center',
-    backgroundColor: '#f7f5f5',
+    backgroundColor: '#fff3e2',
+  },
+  user: {
+    justifyContent: 'left',
   },
   open: {
     paddingLeft: sm,
@@ -74,6 +82,5 @@ export const styles = createStyles({
     alignItems: 'center',
     textAlign: 'center',
     width: '100%',
-    backgroundColor: background,
   },
 })

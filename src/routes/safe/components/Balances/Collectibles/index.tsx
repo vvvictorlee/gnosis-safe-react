@@ -6,7 +6,7 @@ import { useSelector } from 'react-redux'
 import Item from './components/Item'
 
 import Paragraph from 'src/components/layout/Paragraph'
-import { nftAssetsFromNftTokensSelector, orderedNFTAssets } from 'src/logic/collectibles/store/selectors'
+import { activeNftAssetsListSelector, orderedNFTAssets } from 'src/logic/collectibles/store/selectors'
 import SendModal from 'src/routes/safe/components/Balances/SendModal'
 import { fontColor, lg, screenSm, screenXs } from 'src/theme/variables'
 import { useAnalytics, SAFE_NAVIGATION_EVENT } from 'src/utils/googleAnalytics'
@@ -78,13 +78,12 @@ const useStyles = makeStyles(
 )
 
 const Collectibles = (): React.ReactElement => {
-  const { trackEvent } = useAnalytics()
   const classes = useStyles()
   const [selectedToken, setSelectedToken] = React.useState<NFTToken | undefined>()
   const [sendNFTsModalOpen, setSendNFTsModalOpen] = React.useState(false)
-
   const nftTokens = useSelector(orderedNFTAssets)
-  const nftAssetsFromNftTokens = useSelector(nftAssetsFromNftTokensSelector)
+  const activeAssetsList = useSelector(activeNftAssetsListSelector)
+  const { trackEvent } = useAnalytics()
 
   useEffect(() => {
     trackEvent({ category: SAFE_NAVIGATION_EVENT, action: 'Collectibles' })
@@ -98,14 +97,8 @@ const Collectibles = (): React.ReactElement => {
   return (
     <Card className={classes.cardOuter}>
       <div className={classes.cardInner}>
-        {/* No collectibles */}
-        {nftAssetsFromNftTokens.length === 0 && (
-          <Paragraph className={classes.noData}>No collectibles available</Paragraph>
-        )}
-
-        {/* collectibles List*/}
-        {nftAssetsFromNftTokens.length > 0 &&
-          nftAssetsFromNftTokens.map((nftAsset) => {
+        {activeAssetsList.length ? (
+          activeAssetsList.map((nftAsset) => {
             return (
               <React.Fragment key={nftAsset.slug}>
                 <div className={classes.title}>
@@ -126,7 +119,10 @@ const Collectibles = (): React.ReactElement => {
                 </div>
               </React.Fragment>
             )
-          })}
+          })
+        ) : (
+          <Paragraph className={classes.noData}>No collectibles available</Paragraph>
+        )}
       </div>
       <SendModal
         activeScreenType="sendCollectible"

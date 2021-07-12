@@ -1,7 +1,6 @@
 import { ImmortalStorage, IndexedDbStore, LocalStorageStore } from 'immortal-db'
 
 import { getNetworkName } from 'src/config'
-import { Errors, logError } from 'src/logic/exceptions/CodedException'
 
 // Don't use sessionStorage and cookieStorage
 // https://github.com/gruns/ImmortalDB/issues/22
@@ -20,7 +19,7 @@ export const loadFromStorage = async <T = unknown>(key: string): Promise<T | und
 
     return JSON.parse(stringifiedValue)
   } catch (err) {
-    logError(Errors._700, `key ${key} – ${err.message}`)
+    console.error(`Failed to load ${key} from storage:`, err)
     return undefined
   }
 }
@@ -30,7 +29,7 @@ export const saveToStorage = async <T = unknown>(key: string, value: T): Promise
     const stringifiedValue = JSON.stringify(value)
     await storage.set(`${PREFIX}__${key}`, stringifiedValue)
   } catch (err) {
-    logError(Errors._701, `key ${key} – ${err.message}`)
+    console.error(`Failed to save ${key} in the storage:`, err)
   }
 }
 
@@ -38,6 +37,6 @@ export const removeFromStorage = async (key: string): Promise<void> => {
   try {
     await storage.remove(`${PREFIX}__${key}`)
   } catch (err) {
-    logError(Errors._702, `key ${key} – ${err.message}`)
+    console.error(`Failed to remove ${key} from the storage:`, err)
   }
 }

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-export type ReturnValue = {
+type ReturnValue = {
   open: boolean
   toggle: () => void
   clickAway: () => void

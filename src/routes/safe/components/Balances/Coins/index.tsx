@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo } from 'react'
-import styled from 'styled-components'
 import { useSelector } from 'react-redux'
 import { List } from 'immutable'
 import TableCell from '@material-ui/core/TableCell'
@@ -9,12 +8,17 @@ import TableRow from '@material-ui/core/TableRow'
 import { Skeleton } from '@material-ui/lab'
 
 import InfoIcon from 'src/assets/icons/info_red.svg'
-import { FixedIcon, Text, Button } from '@gnosis.pm/safe-react-components'
 
 import Img from 'src/components/layout/Img'
 import Table from 'src/components/Table'
 import { cellWidth } from 'src/components/Table/TableHead'
+import Button from 'src/components/layout/Button'
 import Row from 'src/components/layout/Row'
+import {
+  currencyRateSelector,
+  currentCurrencySelector,
+  safeFiatBalancesListSelector,
+} from 'src/logic/currencyValues/store/selectors'
 import { BALANCE_ROW_TEST_ID } from 'src/routes/safe/components/Balances'
 import AssetTableCell from 'src/routes/safe/components/Balances/AssetTableCell'
 import {
@@ -29,18 +33,6 @@ import { extendedSafeTokensSelector, grantedSelector } from 'src/routes/safe/con
 import { useAnalytics, SAFE_NAVIGATION_EVENT } from 'src/utils/googleAnalytics'
 import { makeStyles } from '@material-ui/core/styles'
 import { styles } from './styles'
-import { currentCurrencySelector } from 'src/logic/currencyValues/store/selectors'
-
-const StyledButton = styled(Button)`
-  &&.MuiButton-root {
-    margin: 4px 12px 4px 0px;
-    padding: 0 12px;
-    min-width: auto;
-  }
-  svg {
-    margin: 0 6px 0 0;
-  }
-`
 
 const useStyles = makeStyles(styles)
 
@@ -61,7 +53,7 @@ const CurrencyTooltip = (props: CurrencyTooltipProps): React.ReactElement | null
   const value = valueWithCurrency.replace(/[^\d.-]/g, '')
   if (!Number(value) && Number(balance)) {
     return (
-      <Tooltip placement="top" title="Value may be zero due to missing token price information">
+      <Tooltip placement="top" title="Balance may be zero due to missing token price information">
         <span>
           <Img className={classes.tooltipInfo} alt="Info Tooltip" height={16} src={InfoIcon} />
         </span>
@@ -77,7 +69,9 @@ const Coins = (props: Props): React.ReactElement => {
   const columns = generateColumns()
   const autoColumns = columns.filter((c) => !c.custom)
   const selectedCurrency = useSelector(currentCurrencySelector)
-  const safeTokens = useSelector(extendedSafeTokensSelector)
+  const currencyRate = useSelector(currencyRateSelector)
+  const activeTokens = useSelector(extendedSafeTokensSelector)
+  const currencyValues = useSelector(safeFiatBalancesListSelector)
   const granted = useSelector(grantedSelector)
   const { trackEvent } = useAnalytics()
 
@@ -85,14 +79,22 @@ const Coins = (props: Props): React.ReactElement => {
     trackEvent({ category: SAFE_NAVIGATION_EVENT, action: 'Coins' })
   }, [trackEvent])
 
-  const filteredData: List<BalanceData> = useMemo(() => getBalanceData(safeTokens, selectedCurrency), [
-    safeTokens,
-    selectedCurrency,
-  ])
+  const filteredData: List<BalanceData> = useMemo(
+    () => getBalanceData(activeTokens, selectedCurrency, currencyValues, currencyRate),
+    [activeTokens, selectedCurrency, currencyValues, currencyRate],
+  )
 
   return (
     <TableContainer>
-      <Table columns={columns} data={filteredData} defaultRowsPerPage={100} label="Balances" size={filteredData.size}>
+      <Table
+        columns={columns}
+        data={filteredData}
+        defaultFixed
+        defaultOrderBy={BALANCE_TABLE_ASSET_ID}
+        defaultRowsPerPage={10}
+        label="Balances"
+        size={filteredData.size}
+      >
         {(sortedData) =>
           sortedData.map((row, index) => (
             <TableRow className={classes.hide} data-testid={BALANCE_ROW_TEST_ID} key={index} tabIndex={-1}>
@@ -141,25 +143,31 @@ const Coins = (props: Props): React.ReactElement => {
               <TableCell component="td">
                 <Row align="end" className={classes.actions}>
                   {granted && (
-                    <StyledButton
+                    <Button
+                      className={classes.send}
                       color="primary"
                       onClick={() => showSendFunds(row.asset.address)}
-                      size="md"
+                      size="small"
+                      testId="balance-send-btn"
                       variant="contained"
-                      data-testid="balance-send-btn"
                     >
-                      <FixedIcon type="arrowSentWhite" />
-                      <Text size="xl" color="white">
-                        Send
-                      </Text>
-                    </StyledButton>
+                      {/* <CallMade alt="Send Transaction" className={classNames(classes.leftIcon, classes.iconSmall)} /> */}
+                      Send
+                    </Button>
                   )}
-                  <StyledButton color="primary" onClick={showReceiveFunds} size="md" variant="contained">
-                    <FixedIcon type="arrowReceivedWhite" />
-                    <Text size="xl" color="white">
-                      Receive
-                    </Text>
-                  </StyledButton>
+                  <Button
+                    className={classes.receive}
+                    color="primary"
+                    onClick={showReceiveFunds}
+                    size="small"
+                    variant="contained"
+                  >
+                    {/* <CallReceived
+                      alt="Receive Transaction"
+                      className={classNames(classes.leftIcon, classes.iconSmall)}
+                    /> */}
+                    Receive
+                  </Button>
                 </Row>
               </TableCell>
             </TableRow>

@@ -7,8 +7,9 @@ import {
   ConfirmationServiceModel,
   TxServiceModel,
 } from 'src/logic/safe/store/actions/transactions/fetchTransactions/loadOutgoingTransactions'
+import { DataDecoded } from 'src/routes/safe/store/models/types/transactions.d'
 import { List, Map } from 'immutable'
-import { DataDecoded, PendingActionValues } from 'src/logic/safe/store/models/types/transaction'
+import { PendingActionValues } from 'src/logic/safe/store/models/types/transaction'
 
 const mockNonPayableTransactionObject = (callResult?: string): NonPayableTransactionObject<string | void | boolean | string[]> => {
   return {

@@ -2,6 +2,7 @@ import { makeStyles } from '@material-ui/core/styles'
 import * as React from 'react'
 import { EthHashInfo, Text } from '@gnosis.pm/safe-react-components'
 
+import NetworkLabel from '../NetworkLabel'
 import Col from 'src/components/layout/Col'
 import Paragraph from 'src/components/layout/Paragraph'
 import WalletIcon from '../WalletIcon'
@@ -88,8 +89,8 @@ const ProviderInfo = ({ connected, provider, userAddress }: ProviderInfoProps): 
             <EthHashInfo
               hash={userAddress}
               shortenHash={4}
-              showAvatar
-              avatarSize="xs"
+              showIdenticon
+              identiconSize="xs"
               textColor={addressColor}
               textSize="sm"
             />
@@ -103,6 +104,9 @@ const ProviderInfo = ({ connected, provider, userAddress }: ProviderInfoProps): 
             {cutAddress}
           </Paragraph> */}
         </div>
+      </Col>
+      <Col className={classes.networkLabel} layout="column" start="sm">
+        <NetworkLabel />
       </Col>
     </>
   )

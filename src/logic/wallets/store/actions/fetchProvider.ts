@@ -1,5 +1,4 @@
 import ReactGA from 'react-ga'
-import { Dispatch } from 'redux'
 
 import addProvider from './addProvider'
 
@@ -8,10 +7,13 @@ import { NOTIFICATIONS, enhanceSnackbarForAction } from 'src/logic/notifications
 import enqueueSnackbar from 'src/logic/notifications/store/actions/enqueueSnackbar'
 import { getProviderInfo, getWeb3 } from 'src/logic/wallets/getWeb3'
 import { makeProvider } from 'src/logic/wallets/store/model/provider'
+import { updateStoredTransactionsStatus } from 'src/logic/safe/store/actions/transactions/utils/transactionHelpers'
+import { Dispatch } from 'redux'
 
 export const processProviderResponse = (dispatch, provider) => {
   const walletRecord = makeProvider(provider)
   dispatch(addProvider(walletRecord))
+  updateStoredTransactionsStatus(dispatch, walletRecord)
 }
 
 const handleProviderNotification = (provider, dispatch) => {
@@ -42,6 +44,7 @@ const handleProviderNotification = (provider, dispatch) => {
       action: 'Connect a wallet',
       label: provider.name,
     })
+    dispatch(enqueueSnackbar(enhanceSnackbarForAction(NOTIFICATIONS.WALLET_CONNECTED_MSG)))
   } else {
     dispatch(enqueueSnackbar(enhanceSnackbarForAction(NOTIFICATIONS.UNLOCK_WALLET_MSG)))
   }

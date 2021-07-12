@@ -22,15 +22,18 @@ const getStandardTxNotificationsQueue = (
   origin: string,
 ): Record<string, Record<string, Notification> | Notification> => ({
   beforeExecution: setNotificationOrigin(NOTIFICATIONS.SIGN_TX_MSG, origin),
+  pendingExecution: setNotificationOrigin(NOTIFICATIONS.TX_PENDING_MSG, origin),
   afterRejection: setNotificationOrigin(NOTIFICATIONS.TX_REJECTED_MSG, origin),
   afterExecution: {
     noMoreConfirmationsNeeded: setNotificationOrigin(NOTIFICATIONS.TX_EXECUTED_MSG, origin),
+    moreConfirmationsNeeded: setNotificationOrigin(NOTIFICATIONS.TX_EXECUTED_MORE_CONFIRMATIONS_MSG, origin),
   },
   afterExecutionError: setNotificationOrigin(NOTIFICATIONS.TX_FAILED_MSG, origin),
 })
 
 const waitingTransactionNotificationsQueue = {
   beforeExecution: null,
+  pendingExecution: null,
   afterRejection: null,
   waitingConfirmation: NOTIFICATIONS.TX_WAITING_MSG,
   afterExecution: null,
@@ -40,6 +43,7 @@ const waitingTransactionNotificationsQueue = {
 const getConfirmationTxNotificationsQueue = (origin: string) => {
   return {
     beforeExecution: setNotificationOrigin(NOTIFICATIONS.SIGN_TX_MSG, origin),
+    pendingExecution: setNotificationOrigin(NOTIFICATIONS.TX_CONFIRMATION_PENDING_MSG, origin),
     afterRejection: setNotificationOrigin(NOTIFICATIONS.TX_REJECTED_MSG, origin),
     afterExecution: {
       noMoreConfirmationsNeeded: setNotificationOrigin(NOTIFICATIONS.TX_EXECUTED_MSG, origin),
@@ -52,6 +56,7 @@ const getConfirmationTxNotificationsQueue = (origin: string) => {
 const getCancellationTxNotificationsQueue = (origin: string) => {
   return {
     beforeExecution: setNotificationOrigin(NOTIFICATIONS.SIGN_TX_MSG, origin),
+    pendingExecution: setNotificationOrigin(NOTIFICATIONS.TX_PENDING_MSG, origin),
     afterRejection: setNotificationOrigin(NOTIFICATIONS.TX_REJECTED_MSG, origin),
     afterExecution: {
       noMoreConfirmationsNeeded: setNotificationOrigin(NOTIFICATIONS.TX_EXECUTED_MSG, origin),
@@ -63,6 +68,7 @@ const getCancellationTxNotificationsQueue = (origin: string) => {
 
 const safeNameChangeNotificationsQueue = {
   beforeExecution: null,
+  pendingExecution: null,
   afterRejection: null,
   afterExecution: {
     noMoreConfirmationsNeeded: NOTIFICATIONS.SAFE_NAME_CHANGED_MSG,
@@ -73,6 +79,7 @@ const safeNameChangeNotificationsQueue = {
 
 const ownerNameChangeNotificationsQueue = {
   beforeExecution: null,
+  pendingExecution: null,
   afterRejection: null,
   afterExecution: {
     noMoreConfirmationsNeeded: NOTIFICATIONS.OWNER_NAME_CHANGE_EXECUTED_MSG,
@@ -83,6 +90,7 @@ const ownerNameChangeNotificationsQueue = {
 
 const settingsChangeTxNotificationsQueue = {
   beforeExecution: NOTIFICATIONS.SIGN_SETTINGS_CHANGE_MSG,
+  pendingExecution: NOTIFICATIONS.SETTINGS_CHANGE_PENDING_MSG,
   afterRejection: NOTIFICATIONS.SETTINGS_CHANGE_REJECTED_MSG,
   afterExecution: {
     noMoreConfirmationsNeeded: NOTIFICATIONS.SETTINGS_CHANGE_EXECUTED_MSG,
@@ -93,6 +101,7 @@ const settingsChangeTxNotificationsQueue = {
 
 const newSpendingLimitTxNotificationsQueue = {
   beforeExecution: NOTIFICATIONS.SIGN_NEW_SPENDING_LIMIT_MSG,
+  pendingExecution: NOTIFICATIONS.NEW_SPENDING_LIMIT_PENDING_MSG,
   afterRejection: NOTIFICATIONS.NEW_SPENDING_LIMIT_REJECTED_MSG,
   afterExecution: {
     noMoreConfirmationsNeeded: NOTIFICATIONS.NEW_SPENDING_LIMIT_EXECUTED_MSG,
@@ -103,6 +112,7 @@ const newSpendingLimitTxNotificationsQueue = {
 
 const removeSpendingLimitTxNotificationsQueue = {
   beforeExecution: NOTIFICATIONS.SIGN_REMOVE_SPENDING_LIMIT_MSG,
+  pendingExecution: NOTIFICATIONS.REMOVE_SPENDING_LIMIT_PENDING_MSG,
   afterRejection: NOTIFICATIONS.REMOVE_SPENDING_LIMIT_REJECTED_MSG,
   afterExecution: {
     noMoreConfirmationsNeeded: NOTIFICATIONS.REMOVE_SPENDING_LIMIT_EXECUTED_MSG,
@@ -113,15 +123,18 @@ const removeSpendingLimitTxNotificationsQueue = {
 
 const defaultNotificationsQueue = {
   beforeExecution: NOTIFICATIONS.SIGN_TX_MSG,
+  pendingExecution: NOTIFICATIONS.TX_PENDING_MSG,
   afterRejection: NOTIFICATIONS.TX_REJECTED_MSG,
   afterExecution: {
     noMoreConfirmationsNeeded: NOTIFICATIONS.TX_EXECUTED_MSG,
+    moreConfirmationsNeeded: NOTIFICATIONS.TX_EXECUTED_MORE_CONFIRMATIONS_MSG,
   },
   afterExecutionError: NOTIFICATIONS.TX_FAILED_MSG,
 }
 
 const addressBookNewEntry = {
   beforeExecution: null,
+  pendingExecution: null,
   afterRejection: null,
   waitingConfirmation: null,
   afterExecution: {
@@ -133,6 +146,7 @@ const addressBookNewEntry = {
 
 const addressBookEditEntry = {
   beforeExecution: null,
+  pendingExecution: null,
   afterRejection: null,
   waitingConfirmation: null,
   afterExecution: {
@@ -142,19 +156,9 @@ const addressBookEditEntry = {
   afterExecutionError: null,
 }
 
-const addressBookImportEntries = {
-  beforeExecution: null,
-  afterRejection: null,
-  waitingConfirmation: null,
-  afterExecution: {
-    noMoreConfirmationsNeeded: NOTIFICATIONS.ADDRESS_BOOK_IMPORT_ENTRIES_SUCCESS,
-    moreConfirmationsNeeded: null,
-  },
-  afterExecutionError: null,
-}
-
 const addressBookDeleteEntry = {
   beforeExecution: null,
+  pendingExecution: null,
   afterRejection: null,
   waitingConfirmation: null,
   afterExecution: {
@@ -162,17 +166,6 @@ const addressBookDeleteEntry = {
     moreConfirmationsNeeded: null,
   },
   afterExecutionError: null,
-}
-
-const addressBookExportEntries = {
-  beforeExecution: null,
-  afterRejection: null,
-  waitingConfirmation: null,
-  afterExecution: {
-    noMoreConfirmationsNeeded: NOTIFICATIONS.ADDRESS_BOOK_EXPORT_ENTRIES_SUCCESS,
-    moreConfirmationsNeeded: null,
-  },
-  afterExecutionError: NOTIFICATIONS.ADDRESS_BOOK_EXPORT_ENTRIES_ERROR,
 }
 
 export const getNotificationsFromTxType: any = (txType, origin) => {
@@ -215,24 +208,16 @@ export const getNotificationsFromTxType: any = (txType, origin) => {
       notificationsQueue = waitingTransactionNotificationsQueue
       break
     }
-    case TX_NOTIFICATION_TYPES.ADDRESS_BOOK_NEW_ENTRY: {
+    case TX_NOTIFICATION_TYPES.ADDRESSBOOK_NEW_ENTRY: {
       notificationsQueue = addressBookNewEntry
       break
     }
-    case TX_NOTIFICATION_TYPES.ADDRESS_BOOK_EDIT_ENTRY: {
+    case TX_NOTIFICATION_TYPES.ADDRESSBOOK_EDIT_ENTRY: {
       notificationsQueue = addressBookEditEntry
       break
     }
-    case TX_NOTIFICATION_TYPES.ADDRESS_BOOK_IMPORT_ENTRIES: {
-      notificationsQueue = addressBookImportEntries
-      break
-    }
-    case TX_NOTIFICATION_TYPES.ADDRESS_BOOK_DELETE_ENTRY: {
+    case TX_NOTIFICATION_TYPES.ADDRESSBOOK_DELETE_ENTRY: {
       notificationsQueue = addressBookDeleteEntry
-      break
-    }
-    case TX_NOTIFICATION_TYPES.ADDRESS_BOOK_EXPORT_ENTRIES: {
-      notificationsQueue = addressBookExportEntries
       break
     }
     default: {
@@ -246,7 +231,7 @@ export const getNotificationsFromTxType: any = (txType, origin) => {
 
 export const enhanceSnackbarForAction = (
   notification: Notification,
-  key?: string,
+  key?: number | string,
   onClick?: () => void,
 ): Notification => ({
   ...notification,

@@ -3,18 +3,17 @@ import * as React from 'react'
 import Button from 'src/components/layout/Button'
 import Col from 'src/components/layout/Col'
 import Row from 'src/components/layout/Row'
-import { boldFont, sm, lg, secondary } from 'src/theme/variables'
+import { boldFont, sm } from 'src/theme/variables'
 
 const controlStyle = {
   backgroundColor: 'white',
-  padding: lg,
+  padding: sm,
   borderRadius: sm,
 }
 
 const firstButtonStyle = {
   marginRight: sm,
   fontWeight: boldFont,
-  color: secondary,
 }
 
 const secondButtonStyle = {
@@ -51,8 +50,8 @@ const Controls = ({
   }
 
   return (
-    <Row align="center" grow style={controlStyle}>
-      <Col center="xs" xs={12}>
+    <Row align="end" grow style={controlStyle}>
+      <Col end="xs" xs={12}>
         <Button onClick={onPrevious} size="small" style={firstButtonStyle} type="button">
           {back}
         </Button>

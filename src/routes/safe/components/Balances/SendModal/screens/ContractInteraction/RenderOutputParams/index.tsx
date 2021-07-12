@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react'
+import React from 'react'
 import { useField } from 'react-final-form'
 import { makeStyles } from '@material-ui/core/styles'
 import TextField from 'src/components/forms/TextField'
@@ -17,7 +17,7 @@ const useStyles = makeStyles({
   },
 })
 
-export const RenderOutputParams = (): ReactElement | null => {
+const RenderOutputParams = () => {
   const classes = useStyles()
   const {
     input: { value: method },
@@ -27,18 +27,14 @@ export const RenderOutputParams = (): ReactElement | null => {
   }: any = useField('callResults', { subscription: { value: true } })
   const multipleResults = !!method && method.outputs.length > 1
 
-  if (results == null || results === '') {
-    return null
-  }
-
-  return (
+  return results ? (
     <>
       <Row align="left" margin="xs">
         <Paragraph color="primary" size="lg" style={{ letterSpacing: '-0.5px' }}>
           Call result:
         </Paragraph>
       </Row>
-      {method.outputs?.map(({ name, type }, index) => {
+      {method.outputs.map(({ name, type }, index) => {
         const placeholder = name ? `${name} (${type})` : type
         const key = `methodCallResult-${method.name}_${index}_${type}`
         const value = multipleResults ? results[index] : results
@@ -51,7 +47,7 @@ export const RenderOutputParams = (): ReactElement | null => {
                 multiline
                 disabled
                 rowsMax={3}
-                input={{ name: key, value: value.toString(), placeholder, type: 'text' }}
+                input={{ name: key, value, placeholder, type: 'text' }}
                 meta={{ valid: true }}
                 testId={key}
                 text={placeholder}
@@ -61,5 +57,7 @@ export const RenderOutputParams = (): ReactElement | null => {
         )
       })}
     </>
-  )
+  ) : null
 }
+
+export default RenderOutputParams

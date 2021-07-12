@@ -67,7 +67,6 @@ function getOpenedWindow(url, options) {
       webContents: options.webContents, // use existing webContents if provided
       fullscreen: false,
       show: false,
-webSecurity: false,
     })
     win.webContents.on('new-window', function (event, url) {
       if (url.includes('trezor') && url.includes('bridge')) shell.openExternal(url)
@@ -90,12 +89,9 @@ function createWindow(port = DEFAULT_PORT) {
     height: 768,
     webPreferences: {
       preload: path.join(__dirname, '../scripts/preload.js'),
-      experimentalFeatures: true,
-      nodeIntegration: true,
-      // allowRunningInsecureContent: true,
+      allowRunningInsecureContent: true,
       enableRemoteModule: true,
-      nativeWindowOpen: true, // need to be set in order to display modal,
-webSecurity: false,
+      nativeWindowOpen: true, // need to be set in order to display modal
     },
     icon: electron.nativeImage.createFromPath(path.join(__dirname, '../build/resources/safe.png')),
   })
@@ -146,7 +142,7 @@ process.on('uncaughtException', function (error) {
 })
 
 app.userAgentFallback =
-  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) old-airport-include/1.0.0 Chrome Electron/11.3.0 Safari/537.36'
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) old-airport-include/1.0.0 Chrome Electron/9.4.1 Safari/537.36'
 
 // We have one non-context-aware module in node_modules/usb. This is used by @ledgerhq/hw-transport-node-hid
 // This type of modules will be impossible to use after electron 10

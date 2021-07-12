@@ -2,13 +2,13 @@ import { List } from 'immutable'
 import React, { ReactElement, Reducer, useCallback, useReducer } from 'react'
 import { useSelector } from 'react-redux'
 
-import { Modal } from 'src/components/Modal'
 import { makeToken, Token } from 'src/logic/tokens/store/model/token'
 import { sameAddress } from 'src/logic/wallets/ethAddresses'
 import { extendedSafeTokensSelector } from 'src/routes/safe/container/selector'
+import Modal from 'src/routes/safe/components/Settings/SpendingLimit/Modal'
 
 import Create from './Create'
-import { ReviewSpendingLimits } from './Review'
+import Review from './Review'
 
 export const CREATE = 'CREATE' as const
 export const REVIEW = 'REVIEW' as const
@@ -81,7 +81,7 @@ interface SpendingLimitModalProps {
   open: boolean
 }
 
-export const NewLimitModal = ({ close, open }: SpendingLimitModalProps): ReactElement => {
+const NewLimitModal = ({ close, open }: SpendingLimitModalProps): ReactElement => {
   // state and dispatch
   const [{ step, txToken, values }, { create, review }] = useNewLimitModal(CREATE)
 
@@ -94,11 +94,13 @@ export const NewLimitModal = ({ close, open }: SpendingLimitModalProps): ReactEl
     <Modal
       handleClose={close}
       open={open}
-      title="New spending limit"
+      title="New Spending Limit"
       description="set rules for specific beneficiaries to access funds from this Safe without having to collect all signatures"
     >
       {step === CREATE && <Create initialValues={values} onCancel={close} onReview={handleReview} />}
-      {step === REVIEW && <ReviewSpendingLimits onBack={create} onClose={close} txToken={txToken} values={values} />}
+      {step === REVIEW && <Review onBack={create} onClose={close} txToken={txToken} values={values} />}
     </Modal>
   )
 }
+
+export default NewLimitModal

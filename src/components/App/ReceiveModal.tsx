@@ -1,18 +1,21 @@
-import { Button } from '@gnosis.pm/safe-react-components'
 import IconButton from '@material-ui/core/IconButton'
 import { createStyles, makeStyles } from '@material-ui/core/styles'
 import Close from '@material-ui/icons/Close'
 import QRCode from 'qrcode.react'
 import React, { ReactElement } from 'react'
 
+import CopyBtn from 'src/components/CopyBtn'
+import Identicon from 'src/components/Identicon'
 import Block from 'src/components/layout/Block'
+import Button from 'src/components/layout/Button'
 import Col from 'src/components/layout/Col'
 import Hairline from 'src/components/layout/Hairline'
 import Paragraph from 'src/components/layout/Paragraph'
 import Row from 'src/components/layout/Row'
-import { border, fontColor, lg, md, screenSm, secondaryText } from 'src/theme/variables'
+import { border, fontColor, lg, md, screenSm, secondaryText, sm } from 'src/theme/variables'
+import { copyToClipboard } from 'src/utils/clipboard'
 import { getExplorerInfo, getNetworkInfo } from 'src/config'
-import { EthHashInfo } from '@gnosis.pm/safe-react-components'
+import { ExplorerButton } from '@gnosis.pm/safe-react-components'
 
 const networkInfo = getNetworkInfo()
 const useStyles = makeStyles(
@@ -20,7 +23,7 @@ const useStyles = makeStyles(
     heading: {
       padding: `${md} ${lg}`,
       justifyContent: 'space-between',
-      height: '74px',
+      maxHeight: '75px',
       boxSizing: 'border-box',
     },
     close: {
@@ -65,6 +68,16 @@ const useStyles = makeStyles(
         flexDirection: 'row',
       },
     },
+    address: {
+      marginLeft: sm,
+      marginRight: sm,
+      maxWidth: '70%',
+      overflowWrap: 'break-word',
+
+      [`@media (min-width: ${screenSm}px)`]: {
+        maxWidth: 'none',
+      },
+    },
   }),
 )
 
@@ -81,7 +94,7 @@ const ReceiveModal = ({ onClose, safeAddress, safeName }: Props): ReactElement =
     <>
       <Row align="center" className={classes.heading} grow>
         <Paragraph noMargin size="xl" weight="bolder">
-          Receive assets
+          Receive funds
         </Paragraph>
         <IconButton disableRipple onClick={onClose}>
           <Close className={classes.close} />
@@ -93,7 +106,7 @@ const ReceiveModal = ({ onClose, safeAddress, safeName }: Props): ReactElement =
       </Paragraph>
       <Paragraph className={classes.annotation} noMargin size="lg">
         This is the address of your Safe. Deposit funds by scanning the QR code or copying the address below. Only send{' '}
-        {networkInfo.nativeCoin.name} and assets to this address (e.g. ETH, ERC20, ERC721)!
+        {networkInfo.nativeCoin.name} and BEP-20 tokens to this address!
       </Paragraph>
       <Col layout="column" middle="xs">
         <Paragraph className={classes.safeName} noMargin size="lg" weight="bold">
@@ -103,12 +116,22 @@ const ReceiveModal = ({ onClose, safeAddress, safeName }: Props): ReactElement =
           <QRCode size={135} value={safeAddress} />
         </Block>
         <Block className={classes.addressContainer} justify="center">
-          <EthHashInfo hash={safeAddress} showAvatar showCopyBtn explorerUrl={getExplorerInfo(safeAddress)} />
+          <Identicon address={safeAddress} diameter={32} />
+          <Paragraph
+            className={classes.address}
+            onClick={() => {
+              copyToClipboard(safeAddress)
+            }}
+          >
+            {safeAddress}
+          </Paragraph>
+          <CopyBtn content={safeAddress} />
+          <ExplorerButton explorerUrl={getExplorerInfo(safeAddress)} />
         </Block>
       </Col>
       <Hairline />
       <Row align="center" className={classes.buttonRow}>
-        <Button size="md" color="primary" onClick={onClose} variant="contained">
+        <Button color="primary" minWidth={130} onClick={onClose} variant="contained">
           Done
         </Button>
       </Row>

@@ -7,53 +7,49 @@ import {
   ErrorResponse,
   MessageFormatter,
   METHODS,
-  RequestId,
 } from '@gnosis.pm/safe-apps-sdk'
-import { trackError, Errors } from 'src/logic/exceptions/CodedException'
-import { SafeApp } from './types'
+import { SafeApp } from './types.d'
 
 type MessageHandler = (
   msg: SDKMessageEvent,
 ) => void | MethodToResponse[Methods] | ErrorResponse | Promise<MethodToResponse[Methods] | ErrorResponse | void>
 
-type LegacyMethods = 'getEnvInfo'
-type SDKMethods = Methods | LegacyMethods
-
 class AppCommunicator {
-  private iframeRef: MutableRefObject<HTMLIFrameElement | null>
-  private handlers = new Map<SDKMethods, MessageHandler>()
+  private iframe: HTMLIFrameElement
+  private handlers = new Map<Methods, MessageHandler>()
   private app: SafeApp
 
-  constructor(iframeRef: MutableRefObject<HTMLIFrameElement | null>, app: SafeApp) {
-    this.iframeRef = iframeRef
+  constructor(iframeRef: MutableRefObject<HTMLIFrameElement>, app: SafeApp) {
+    this.iframe = iframeRef.current
     this.app = app
 
     window.addEventListener('message', this.handleIncomingMessage)
   }
 
-  on = (method: SDKMethods, handler: MessageHandler): void => {
+  on = (method: Methods, handler: MessageHandler): void => {
     this.handlers.set(method, handler)
   }
 
   private isValidMessage = (msg: SDKMessageEvent): boolean => {
     // @ts-expect-error .parent doesn't exist on some possible types
     const sentFromIframe = msg.source.parent === window.parent
+    const knownOrigin = this.app.url.includes(msg.origin)
     const knownMethod = Object.values(METHODS).includes(msg.data.method)
 
-    return sentFromIframe && knownMethod
+    return knownOrigin && sentFromIframe && knownMethod
   }
 
   private canHandleMessage = (msg: SDKMessageEvent): boolean => {
     return Boolean(this.handlers.get(msg.data.method))
   }
 
-  send = (data: unknown, requestId: RequestId, error = false): void => {
+  send = (data, requestId, error = false): void => {
     const sdkVersion = getSDKVersion()
     const msg = error
-      ? MessageFormatter.makeErrorResponse(requestId, data as string, sdkVersion)
+      ? MessageFormatter.makeErrorResponse(requestId, data, sdkVersion)
       : MessageFormatter.makeResponse(requestId, data, sdkVersion)
 
-    this.iframeRef.current?.contentWindow?.postMessage(msg, '*')
+    this.iframe.contentWindow?.postMessage(msg, this.app.url)
   }
 
   handleIncomingMessage = async (msg: SDKMessageEvent): Promise<void> => {
@@ -71,13 +67,8 @@ class AppCommunicator {
           this.send(response, msg.data.id)
         }
       } catch (err) {
+        console.log({ err })
         this.send(err.message, msg.data.id, true)
-        trackError(Errors._901, err.message, {
-          contexts: {
-            safeApp: this.app,
-            request: msg.data,
-          },
-        })
       }
     }
   }
@@ -92,6 +83,7 @@ const useAppCommunicator = (
   app?: SafeApp,
 ): AppCommunicator | undefined => {
   const [communicator, setCommunicator] = useState<AppCommunicator | undefined>(undefined)
+
   useEffect(() => {
     let communicatorInstance
     const initCommunicator = (iframeRef: MutableRefObject<HTMLIFrameElement>, app: SafeApp) => {
@@ -99,7 +91,7 @@ const useAppCommunicator = (
       setCommunicator(communicatorInstance)
     }
 
-    if (app) {
+    if (app && iframeRef.current !== null) {
       initCommunicator(iframeRef as MutableRefObject<HTMLIFrameElement>, app)
     }
 

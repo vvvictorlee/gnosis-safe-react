@@ -1,36 +1,42 @@
-import { Loader } from '@gnosis.pm/safe-react-components'
+import CircularProgress from '@material-ui/core/CircularProgress'
 import { makeStyles } from '@material-ui/core/styles'
-import React, { Suspense, useEffect, useState } from 'react'
+import cn from 'classnames'
+import React, { Suspense, lazy, useEffect, useState } from 'react'
 
 import Modal from 'src/components/Modal'
-import { Erc721Transfer } from 'src/logic/safe/store/models/types/gateway'
 import { CollectibleTx } from './screens/ReviewCollectible'
-import { ReviewCustomTxProps } from './screens/ContractInteraction/ReviewCustomTx'
+import { CustomTx } from './screens/ContractInteraction/ReviewCustomTx'
 import { ContractInteractionTx } from './screens/ContractInteraction'
 import { CustomTxProps } from './screens/ContractInteraction/SendCustomTx'
-import { ReviewTxProp } from './screens/ReviewSendFundsTx'
+import { ReviewTxProp } from './screens/ReviewTx'
 import { NFTToken } from 'src/logic/collectibles/sources/collectibles.d'
 import { SendCollectibleTxInfo } from './screens/SendCollectible'
 
-const ChooseTxType = React.lazy(() => import('./screens/ChooseTxType'))
+const ChooseTxType = lazy(() => import('./screens/ChooseTxType'))
 
-const SendFunds = React.lazy(() => import('./screens/SendFunds'))
+const SendFunds = lazy(() => import('./screens/SendFunds'))
 
-const SendCollectible = React.lazy(() => import('./screens/SendCollectible'))
+const SendCollectible = lazy(() => import('./screens/SendCollectible'))
 
-const ReviewCollectible = React.lazy(() => import('./screens/ReviewCollectible'))
+const ReviewCollectible = lazy(() => import('./screens/ReviewCollectible'))
 
-const ReviewSendFundsTx = React.lazy(() => import('./screens/ReviewSendFundsTx'))
+const ReviewTx = lazy(() => import('./screens/ReviewTx'))
 
-const ContractInteraction = React.lazy(() => import('./screens/ContractInteraction'))
+const ContractInteraction = lazy(() => import('./screens/ContractInteraction'))
 
 const ContractInteractionReview: any = React.lazy(() => import('./screens/ContractInteraction/Review'))
 
-const SendCustomTx = React.lazy(() => import('./screens/ContractInteraction/SendCustomTx'))
+const SendCustomTx = lazy(() => import('./screens/ContractInteraction/SendCustomTx'))
 
-const ReviewCustomTx = React.lazy(() => import('./screens/ContractInteraction/ReviewCustomTx'))
+const ReviewCustomTx = lazy(() => import('./screens/ContractInteraction/ReviewCustomTx'))
 
 const useStyles = makeStyles({
+  scalableModalWindow: {
+    height: 'auto',
+  },
+  scalableStaticModalWindow: {
+    height: 'auto',
+  },
   loaderStyle: {
     height: '500px',
     width: '100%',
@@ -40,24 +46,12 @@ const useStyles = makeStyles({
   },
 })
 
-export type TxType =
-  | 'chooseTxType'
-  | 'sendFunds'
-  | 'sendFundsReviewTx'
-  | 'contractInteraction'
-  | 'contractInteractionReview'
-  | 'reviewCustomTx'
-  | 'sendCollectible'
-  | 'reviewCollectible'
-  | ''
-
 type Props = {
-  activeScreenType: TxType
+  activeScreenType: string
   isOpen: boolean
   onClose: () => void
   recipientAddress?: string
-  recipientName?: string
-  selectedToken?: string | NFTToken | Erc721Transfer
+  selectedToken?: string | NFTToken
   tokenAmount?: string
 }
 
@@ -66,26 +60,24 @@ const SendModal = ({
   isOpen,
   onClose,
   recipientAddress,
-  recipientName,
   selectedToken,
   tokenAmount,
 }: Props): React.ReactElement => {
   const classes = useStyles()
-  const [activeScreen, setActiveScreen] = useState<TxType>(activeScreenType || 'chooseTxType')
+  const [activeScreen, setActiveScreen] = useState(activeScreenType || 'chooseTxType')
   const [tx, setTx] = useState<unknown>({})
   const [isABI, setIsABI] = useState(true)
-
-  const [recipient, setRecipient] = useState<string | undefined>(recipientAddress)
 
   useEffect(() => {
     setActiveScreen(activeScreenType || 'chooseTxType')
     setIsABI(true)
     setTx({})
-    setRecipient(recipientAddress)
-  }, [activeScreenType, isOpen, recipientAddress])
+  }, [activeScreenType, isOpen])
+
+  const scalableModalSize = activeScreen === 'chooseTxType'
 
   const handleTxCreation = (txInfo: SendCollectibleTxInfo) => {
-    setActiveScreen('sendFundsReviewTx')
+    setActiveScreen('reviewTx')
     setTx(txInfo)
   }
 
@@ -108,71 +100,49 @@ const SendModal = ({
     setIsABI(!isABI)
   }
 
-  const handleOnPrev = (screen: TxType) => {
-    setRecipient((tx as ReviewTxProp).recipientAddress)
-    setActiveScreen(screen)
-  }
-
   return (
-    <Modal
-      description="Send Tokens Form"
-      handleClose={onClose}
-      open={isOpen}
-      paperClassName="smaller-modal-window"
-      title="Send Tokens"
+    <Suspense
+      fallback={
+        <div className={classes.loaderStyle}>
+          <CircularProgress size={40} />
+        </div>
+      }
     >
-      <Suspense
-        fallback={
-          <div className={classes.loaderStyle}>
-            <Loader size="md" />
-          </div>
-        }
+      <Modal
+        description="Send Tokens Form"
+        handleClose={onClose}
+        open={isOpen}
+        paperClassName={cn(scalableModalSize ? classes.scalableStaticModalWindow : classes.scalableModalWindow)}
+        title="Send Tokens"
       >
         {activeScreen === 'chooseTxType' && (
-          <ChooseTxType
-            onClose={onClose}
-            recipientName={recipientName}
-            recipientAddress={recipient}
-            setActiveScreen={setActiveScreen}
-          />
+          <ChooseTxType onClose={onClose} recipientAddress={recipientAddress} setActiveScreen={setActiveScreen} />
         )}
-
         {activeScreen === 'sendFunds' && (
           <SendFunds
-            initialValues={tx as ReviewTxProp}
             onClose={onClose}
-            onReview={handleTxCreation}
-            recipientAddress={recipient}
+            onNext={handleTxCreation}
+            recipientAddress={recipientAddress}
             selectedToken={selectedToken as string}
             amount={tokenAmount}
           />
         )}
-
-        {activeScreen === 'sendFundsReviewTx' && (
-          <ReviewSendFundsTx
-            onClose={onClose}
-            onPrev={() => {
-              handleOnPrev('sendFunds')
-            }}
-            tx={tx as ReviewTxProp}
-          />
+        {activeScreen === 'reviewTx' && (
+          <ReviewTx onClose={onClose} onPrev={() => setActiveScreen('sendFunds')} tx={tx as ReviewTxProp} />
         )}
-
         {activeScreen === 'contractInteraction' && isABI && (
           <ContractInteraction
             isABI={isABI}
             switchMethod={handleSwitchMethod}
-            contractAddress={recipient}
+            contractAddress={recipientAddress}
             initialValues={tx as ContractInteractionTx}
             onClose={onClose}
             onNext={handleContractInteractionCreation}
           />
         )}
-
         {activeScreen === 'contractInteractionReview' && isABI && tx && (
-          <ContractInteractionReview onClose={onClose} onPrev={() => handleOnPrev('contractInteraction')} tx={tx} />
+          <ContractInteractionReview onClose={onClose} onPrev={() => setActiveScreen('contractInteraction')} tx={tx} />
         )}
-
         {activeScreen === 'contractInteraction' && !isABI && (
           <SendCustomTx
             initialValues={tx as CustomTxProps}
@@ -180,37 +150,30 @@ const SendModal = ({
             switchMethod={handleSwitchMethod}
             onClose={onClose}
             onNext={handleCustomTxCreation}
-            contractAddress={recipient}
+            contractAddress={recipientAddress}
           />
         )}
-
         {activeScreen === 'reviewCustomTx' && (
-          <ReviewCustomTx
-            onClose={onClose}
-            onPrev={() => handleOnPrev('contractInteraction')}
-            tx={tx as ReviewCustomTxProps}
-          />
+          <ReviewCustomTx onClose={onClose} onPrev={() => setActiveScreen('contractInteraction')} tx={tx as CustomTx} />
         )}
-
         {activeScreen === 'sendCollectible' && (
           <SendCollectible
             initialValues={tx}
             onClose={onClose}
             onNext={handleSendCollectible}
-            recipientAddress={recipient}
+            recipientAddress={recipientAddress}
             selectedToken={selectedToken as NFTToken | undefined}
           />
         )}
-
         {activeScreen === 'reviewCollectible' && (
           <ReviewCollectible
             onClose={onClose}
-            onPrev={() => handleOnPrev('sendCollectible')}
+            onPrev={() => setActiveScreen('sendCollectible')}
             tx={tx as CollectibleTx}
           />
         )}
-      </Suspense>
-    </Modal>
+      </Modal>
+    </Suspense>
   )
 }
 

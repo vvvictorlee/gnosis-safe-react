@@ -73,7 +73,7 @@ export enum FEATURES {
   ERC1155 = 'ERC1155',
   SAFE_APPS = 'SAFE_APPS',
   CONTRACT_INTERACTION = 'CONTRACT_INTERACTION',
-  DOMAIN_LOOKUP = 'DOMAIN_LOOKUP'
+  ENS_LOOKUP = 'ENS_LOOKUP'
 }
 ```
 
@@ -92,10 +92,12 @@ export enum WALLETS {
   TREZOR = 'trezor',
   LEDGER = 'ledger',
   TRUST = 'trust',
+  DAPPER = 'dapper',
   FORTMATIC = 'fortmatic',
   PORTIS = 'portis',
   AUTHEREUM = 'authereum',
   TORUS = 'torus',
+  UNILOGIN = 'unilogin',
   COINBASE = 'coinbase',
   WALLET_LINK = 'walletLink',
   OPERA = 'opera',
@@ -286,7 +288,7 @@ const xDai: NetworkConfig = {
     label: 'xDai',
     isTestNet: false,
     nativeCoin: {
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x000',
       name: 'xDai',
       symbol: 'xDai',
       decimals: 18,
@@ -343,7 +345,7 @@ const mainnet: NetworkConfig = {
     label: 'Mainnet',
     isTestNet: false,
     nativeCoin: {
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x000',
       name: 'Ether',
       symbol: 'ETH',
       decimals: 18,

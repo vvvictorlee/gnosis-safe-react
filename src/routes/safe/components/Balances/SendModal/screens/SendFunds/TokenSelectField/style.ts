@@ -15,10 +15,7 @@ export const useSelectedTokenStyles = makeStyles(
       lineHeight: '14px',
     },
     tokenImage: {
-      display: 'block',
       marginRight: sm,
-      height: 28,
-      width: 'auto',
     },
   }),
 )

@@ -2,9 +2,7 @@ import { SyntheticEvent } from 'react'
 
 import TokenPlaceholder from 'src/routes/safe/components/Balances/assets/token_placeholder.svg'
 
-export const setImageToPlaceholder = (event: SyntheticEvent<HTMLImageElement, Event>): void => {
-  const img = event.currentTarget
-  if (!/token_placeholder/.test(img.src)) {
-    img.src = TokenPlaceholder
-  }
+export const setImageToPlaceholder = (error: SyntheticEvent<HTMLImageElement, Event>): void => {
+  error.currentTarget.onerror = null
+  error.currentTarget.src = TokenPlaceholder
 }

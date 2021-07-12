@@ -17,7 +17,7 @@ import Row from 'src/components/layout/Row'
 import { WELCOME_ADDRESS } from 'src/routes/routes'
 import { useAnalytics, SAFE_NAVIGATION_EVENT } from 'src/utils/googleAnalytics'
 
-import { safeAddressFromUrl, defaultSafe as defaultSafeSelector } from 'src/logic/safe/store/selectors'
+import { defaultSafeSelector, safeParamAddressFromStateSelector } from 'src/logic/safe/store/selectors'
 
 export const SafeListSidebarContext = React.createContext({
   isOpen: false,
@@ -39,9 +39,9 @@ type Props = {
 export const SafeListSidebar = ({ children }: Props): ReactElement => {
   const [isOpen, setIsOpen] = useState(false)
   const [filter, setFilter] = useState('')
-  const safes = useSelector(sortedSafeListSelector).filter((safe) => !safe.loadedViaUrl)
+  const safes = useSelector(sortedSafeListSelector)
   const defaultSafe = useSelector(defaultSafeSelector)
-  const safeAddress = useSelector(safeAddressFromUrl)
+  const currentSafe = useSelector(safeParamAddressFromStateSelector)
 
   const classes = useSidebarStyles()
   const { trackEvent } = useAnalytics()
@@ -75,6 +75,7 @@ export const SafeListSidebar = ({ children }: Props): ReactElement => {
   }
 
   const filteredSafes = useMemo(() => filterBy(filter, safes), [safes, filter])
+
   useEffect(() => {
     setTimeout(() => {
       setFilter('')
@@ -119,8 +120,8 @@ export const SafeListSidebar = ({ children }: Props): ReactElement => {
         </Row>
         <Hairline />
         <SafeList
-          currentSafeAddress={safeAddress}
-          defaultSafeAddress={defaultSafe}
+          currentSafe={currentSafe}
+          defaultSafe={defaultSafe}
           onSafeClick={toggleSidebar}
           safes={filteredSafes}
         />

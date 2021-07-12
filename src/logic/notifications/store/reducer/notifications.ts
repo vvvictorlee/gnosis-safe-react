@@ -1,55 +1,38 @@
 import { Map } from 'immutable'
-import { Action, handleActions } from 'redux-actions'
+import { handleActions } from 'redux-actions'
 
-import { Notification } from 'src/logic/notifications/notificationTypes'
-import { AppReduxState } from 'src/store'
 import { CLOSE_SNACKBAR } from '../actions/closeSnackbar'
 import { ENQUEUE_SNACKBAR } from '../actions/enqueueSnackbar'
 import { REMOVE_SNACKBAR } from '../actions/removeSnackbar'
 
+import { makeNotification } from 'src/logic/notifications/store/models/notification'
+
 export const NOTIFICATIONS_REDUCER_ID = 'notifications'
 
-type CloseSnackBarPayload = { key: string; dismissAll: boolean }
-type Payloads = Notification | CloseSnackBarPayload | string
-
-export default handleActions<AppReduxState['notifications'], Payloads>(
+export default handleActions(
   {
-    [ENQUEUE_SNACKBAR]: (state, action: Action<Notification>) => {
+    [ENQUEUE_SNACKBAR]: (state, action) => {
       const notification = action.payload
 
-      if (!notification.key) {
-        return state
-      }
-
-      return state.set(notification.key, notification)
+      return state.set(notification.key, makeNotification(notification))
     },
-    [CLOSE_SNACKBAR]: (state, action: Action<CloseSnackBarPayload>) => {
+    [CLOSE_SNACKBAR]: (state, action) => {
       const { dismissAll, key } = action.payload
 
-      if (key && state.get(key)) {
-        return state.update(key, (notification) => {
-          if (notification) {
-            return {
-              ...notification,
-              dismissed: true,
-            }
-          }
-
-          return notification
-        })
+      if (key) {
+        return state.update(key, (prev) => prev?.set('dismissed', true))
       }
-
       if (dismissAll) {
         return state.withMutations((map) => {
           map.forEach((notification, notificationKey) => {
-            map.set(notificationKey, { ...notification, dismissed: true })
+            map.set(notificationKey, notification.set('dismissed', true))
           })
         })
       }
 
       return state
     },
-    [REMOVE_SNACKBAR]: (state, action: Action<string>) => {
+    [REMOVE_SNACKBAR]: (state, action) => {
       const key = action.payload
 
       return state.delete(key)

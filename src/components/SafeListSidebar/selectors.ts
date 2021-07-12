@@ -1,10 +1,7 @@
 import { createSelector } from 'reselect'
 
-import { safesWithNamesAsList } from 'src/logic/safe/store/selectors'
+import { safesListSelector } from 'src/logic/safe/store/selectors'
 
-/**
- * Sort safe list by the name in the address book
- */
-export const sortedSafeListSelector = createSelector([safesWithNamesAsList], (safes) =>
-  safes.sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1)),
+export const sortedSafeListSelector = createSelector(safesListSelector, (safes) =>
+  safes.sort((a, b) => (a.name > b.name ? 1 : -1)),
 )

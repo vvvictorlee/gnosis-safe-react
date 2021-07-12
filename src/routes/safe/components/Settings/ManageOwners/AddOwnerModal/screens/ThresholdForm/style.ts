@@ -1,12 +1,11 @@
 import { lg, md, secondaryText, sm } from 'src/theme/variables'
-import { createStyles } from '@material-ui/core'
 
-export const styles = createStyles({
+export const styles = () => ({
   heading: {
     padding: `${sm} ${lg}`,
     justifyContent: 'flex-start',
     boxSizing: 'border-box',
-    height: '74px',
+    maxHeight: '75px',
   },
   annotation: {
     color: secondaryText,
@@ -34,7 +33,6 @@ export const styles = createStyles({
   buttonRow: {
     height: '84px',
     justifyContent: 'center',
-    gap: '16px',
   },
   inputRow: {
     position: 'relative',

@@ -1,3 +1,4 @@
+import { batch } from 'react-redux'
 import { Dispatch } from 'redux'
 
 import { getConfiguredSource } from 'src/logic/collectibles/sources'
@@ -8,8 +9,10 @@ export const fetchCollectibles = (safeAddress: string) => async (dispatch: Dispa
     const source = getConfiguredSource()
     const collectibles = await source.fetchCollectibles(safeAddress)
 
-    dispatch(addNftAssets(collectibles.nftAssets))
-    dispatch(addNftTokens(collectibles.nftTokens))
+    batch(() => {
+      dispatch(addNftAssets(collectibles.nftAssets))
+      dispatch(addNftTokens(collectibles.nftTokens))
+    })
   } catch (error) {
     console.log('Error fetching collectibles:', error)
   }

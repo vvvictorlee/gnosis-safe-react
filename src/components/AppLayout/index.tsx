@@ -17,16 +17,16 @@ const Container = styled.div`
 `
 
 const HeaderWrapper = styled.nav`
-  height: 52px;
+  height: 54px;
   width: 100%;
-  z-index: 2;
+  z-index: 1;
 
   background-color: white;
-  box-shadow: 0 2px 4px 0 rgba(40, 54, 61, 0.18);
+  box-shadow: 0 0 4px 0 rgba(212, 212, 211, 0.59);
 `
 
 const BodyWrapper = styled.div`
-  height: calc(100% - 52px);
+  height: calc(100% - 54px);
   width: 100%;
   display: flex;
   flex-direction: row;
@@ -41,10 +41,10 @@ const SidebarWrapper = styled.aside`
 
   padding: 8px 8px 0 8px;
   background-color: ${({ theme }) => theme.colors.white};
-  box-shadow: 0 2px 4px 0 rgba(40, 54, 61, 0.18);
+  border-right: 2px solid ${({ theme }) => theme.colors.separator};
 `
 
-const ContentWrapper = styled.div`
+const ContentWrapper = styled.section`
   width: 100%;
   display: flex;
   flex-direction: column;

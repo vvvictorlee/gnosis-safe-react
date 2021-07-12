@@ -6,10 +6,10 @@ import ListIcon from 'src/components/List/ListIcon'
 import { SAFELIST_ADDRESS } from 'src/routes/routes'
 import { FEATURES } from 'src/config/networks/network.d'
 import { useSelector } from 'react-redux'
-import { currentSafeFeaturesEnabled } from 'src/logic/safe/store/selectors'
+import { safeFeaturesEnabledSelector } from 'src/logic/safe/store/selectors'
 
 const useSidebarItems = (): ListItemType[] => {
-  const featuresEnabled = useSelector(currentSafeFeaturesEnabled)
+  const featuresEnabled = useSelector(safeFeaturesEnabledSelector)
   const safeAppsEnabled = Boolean(featuresEnabled?.includes(FEATURES.SAFE_APPS))
   const matchSafe = useRouteMatch({ path: `${SAFELIST_ADDRESS}`, strict: false })
   const matchSafeWithAddress = useRouteMatch<{ safeAddress: string }>({ path: `${SAFELIST_ADDRESS}/:safeAddress` })
@@ -56,7 +56,7 @@ const useSidebarItems = (): ListItemType[] => {
         href: `${matchSafeWithAddress?.url}/transactions`,
       },
       {
-        label: 'ADDRESS BOOK',
+        label: 'AddressBook',
         icon: <ListIcon type="addressBook" />,
         selected: matchSafeWithAction?.params.safeAction === 'address-book',
         href: `${matchSafeWithAddress?.url}/address-book`,

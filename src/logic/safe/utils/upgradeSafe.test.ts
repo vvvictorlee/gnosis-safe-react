@@ -1,6 +1,6 @@
 import { AbiItem } from 'web3-utils'
 import Web3 from 'web3'
-import GnosisSafeSol from '../../../safe-contracts/build/contracts/GnosisSafe.json'
+import GnosisSafeSol from '@gnosis.pm/safe-contracts/build/contracts/GnosisSafe.json'
 import { DEFAULT_FALLBACK_HANDLER_ADDRESS, SAFE_MASTER_COPY_ADDRESS } from 'src/logic/contracts/safeContracts'
 import { ZERO_ADDRESS } from 'src/logic/wallets/ethAddresses'
 import { getEncodedMultiSendCallData } from 'src/logic/safe/utils/upgradeSafe'
@@ -15,11 +15,13 @@ describe('Upgrade a Safe', () => {
     const updateSafeTxData = safeInstance.methods.changeMasterCopy(SAFE_MASTER_COPY_ADDRESS).encodeABI()
     const txs = [
       {
+        operation: 0,
         to: safeAddress,
         value: 0,
         data: updateSafeTxData,
       },
       {
+        operation: 0,
         to: safeAddress,
         value: 0,
         data: fallbackHandlerTxData,

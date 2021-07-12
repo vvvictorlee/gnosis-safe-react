@@ -3,30 +3,31 @@ import React, { ReactElement } from 'react'
 import { useSelector } from 'react-redux'
 
 import { getExplorerInfo } from 'src/config'
-import { addressBookEntryName } from 'src/logic/addressBook/store/selectors'
-import { ADDRESS_BOOK_DEFAULT_NAME } from 'src/logic/addressBook/model/addressBook'
+import { getNameFromAddressBookSelector } from 'src/logic/addressBook/store/selectors'
 import { sameString } from 'src/utils/strings'
 
 import DataDisplay from './DataDisplay'
 
 interface AddressInfoProps {
   address: string
+  cut?: number
   title?: string
 }
 
-const AddressInfo = ({ address, title }: AddressInfoProps): ReactElement => {
-  const name = useSelector((state) => addressBookEntryName(state, { address }))
+const AddressInfo = ({ address, cut = 4, title }: AddressInfoProps): ReactElement => {
+  const name = useSelector((state) => getNameFromAddressBookSelector(state, address))
   const explorerUrl = getExplorerInfo(address)
 
   return (
     <DataDisplay title={title}>
       <EthHashInfo
         hash={address}
-        name={sameString(name, ADDRESS_BOOK_DEFAULT_NAME) ? undefined : name}
+        name={sameString(name, 'UNKNOWN') ? undefined : name}
         showCopyBtn
-        showAvatar
+        showIdenticon
         textSize="lg"
         explorerUrl={explorerUrl}
+        shortenHash={cut}
       />
     </DataDisplay>
   )

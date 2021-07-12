@@ -1,16 +1,15 @@
-import { ButtonLink, EthHashInfo, Text } from '@gnosis.pm/safe-react-components'
-import { makeStyles } from '@material-ui/core/styles'
-import React, { ReactElement } from 'react'
-import { useDispatch } from 'react-redux'
+import React from 'react'
 import styled from 'styled-components'
-
-import { SafeRecordWithNames } from 'src/logic/safe/store/selectors'
+import { ButtonLink, EthHashInfo, Text } from '@gnosis.pm/safe-react-components'
 import { formatAmount } from 'src/logic/tokens/utils/formatAmount'
 import { sameAddress } from 'src/logic/wallets/ethAddresses'
 import DefaultBadge from './DefaultBadge'
-import { DefaultSafe } from 'src/logic/safe/store/reducer/types/safe'
+import { SafeRecordProps } from 'src/logic/safe/store/models/safe'
+import { DefaultSafe } from 'src/routes/safe/store/reducer/types/safe'
 import setDefaultSafe from 'src/logic/safe/store/actions/setDefaultSafe'
+import { makeStyles } from '@material-ui/core/styles'
 import { getNetworkInfo } from 'src/config'
+import { useDispatch } from 'react-redux'
 
 const StyledButtonLink = styled(ButtonLink)`
   visibility: hidden;
@@ -46,14 +45,15 @@ const useStyles = makeStyles({
 })
 
 type Props = {
-  safe: SafeRecordWithNames
-  defaultSafeAddress: DefaultSafe
+  safe: SafeRecordProps
+  defaultSafe: DefaultSafe
 }
 
 const { nativeCoin } = getNetworkInfo()
 
-export const AddressWrapper = ({ safe, defaultSafeAddress }: Props): ReactElement => {
+export const AddressWrapper = (props: Props): React.ReactElement => {
   const classes = useStyles()
+  const { safe, defaultSafe } = props
   const dispatch = useDispatch()
 
   const setDefaultSafeAction = (safeAddress: string) => {
@@ -62,11 +62,11 @@ export const AddressWrapper = ({ safe, defaultSafeAddress }: Props): ReactElemen
 
   return (
     <div className={classes.wrapper}>
-      <EthHashInfo hash={safe.address} name={safe.name} showAvatar shortenHash={4} />
+      <EthHashInfo hash={safe.address} name={safe.name} showIdenticon shortenHash={4} />
 
       <div className={classes.addressDetails}>
         <Text size="xl">{`${formatAmount(safe.ethBalance)} ${nativeCoin.name}`}</Text>
-        {sameAddress(defaultSafeAddress, safe.address) ? (
+        {sameAddress(defaultSafe, safe.address) ? (
           <DefaultBadge />
         ) : (
           <StyledButtonLink

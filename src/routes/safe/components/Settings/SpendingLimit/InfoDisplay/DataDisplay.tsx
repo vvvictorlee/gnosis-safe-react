@@ -9,7 +9,7 @@ interface GenericInfoProps {
 const DataDisplay = ({ title, children }: GenericInfoProps): ReactElement => (
   <>
     {title && (
-      <Text size="md" color="secondaryLight">
+      <Text size="lg" color="secondaryLight">
         {title}
       </Text>
     )}

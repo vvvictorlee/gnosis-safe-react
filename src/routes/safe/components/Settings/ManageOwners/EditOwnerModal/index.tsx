@@ -1,44 +1,55 @@
 import IconButton from '@material-ui/core/IconButton'
+import { makeStyles } from '@material-ui/core/styles'
 import Close from '@material-ui/icons/Close'
 import React from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
+import CopyBtn from 'src/components/CopyBtn'
 import Field from 'src/components/forms/Field'
 import GnoForm from 'src/components/forms/GnoForm'
 import TextField from 'src/components/forms/TextField'
-import { composeValidators, required, validAddressBookName } from 'src/components/forms/validator'
+import { composeValidators, minMaxLength, required } from 'src/components/forms/validator'
+import Identicon from 'src/components/Identicon'
 import Block from 'src/components/layout/Block'
+import Button from 'src/components/layout/Button'
 import Hairline from 'src/components/layout/Hairline'
 import Paragraph from 'src/components/layout/Paragraph'
 import Row from 'src/components/layout/Row'
-import Modal, { Modal as GenericModal } from 'src/components/Modal'
+import Modal from 'src/components/Modal'
 import { makeAddressBookEntry } from 'src/logic/addressBook/model/addressBook'
-import { addressBookAddOrUpdate } from 'src/logic/addressBook/store/actions'
+import { addOrUpdateAddressBookEntry } from 'src/logic/addressBook/store/actions/addOrUpdateAddressBookEntry'
 import { NOTIFICATIONS } from 'src/logic/notifications'
 import enqueueSnackbar from 'src/logic/notifications/store/actions/enqueueSnackbar'
-import { OwnerData } from 'src/routes/safe/components/Settings/ManageOwners/dataFetcher'
+import editSafeOwner from 'src/logic/safe/store/actions/editSafeOwner'
+import { safeParamAddressFromStateSelector } from 'src/logic/safe/store/selectors'
+import { sm } from 'src/theme/variables'
 
-import { useStyles } from './style'
+import { styles } from './style'
 import { getExplorerInfo } from 'src/config'
-import { EthHashInfo } from '@gnosis.pm/safe-react-components'
+import { ExplorerButton } from '@gnosis.pm/safe-react-components'
 
 export const RENAME_OWNER_INPUT_TEST_ID = 'rename-owner-input'
 export const SAVE_OWNER_CHANGES_BTN_TEST_ID = 'save-owner-changes-btn'
 
+const useStyles = makeStyles(styles)
+
 type OwnProps = {
   isOpen: boolean
   onClose: () => void
-  owner: OwnerData
+  ownerAddress: string
+  selectedOwnerName: string
 }
 
-export const EditOwnerModal = ({ isOpen, onClose, owner }: OwnProps): React.ReactElement => {
+export const EditOwnerModal = ({ isOpen, onClose, ownerAddress, selectedOwnerName }: OwnProps): React.ReactElement => {
   const classes = useStyles()
   const dispatch = useDispatch()
+  const safeAddress = useSelector(safeParamAddressFromStateSelector)
 
   const handleSubmit = ({ ownerName }: { ownerName: string }): void => {
     // Update the value only if the ownerName really changed
-    if (ownerName !== owner.name) {
-      dispatch(addressBookAddOrUpdate(makeAddressBookEntry({ address: owner.address, name: ownerName })))
+    if (ownerName !== selectedOwnerName) {
+      dispatch(editSafeOwner({ safeAddress, ownerAddress, ownerName }))
+      dispatch(addOrUpdateAddressBookEntry(makeAddressBookEntry({ address: ownerAddress, name: ownerName })))
       dispatch(enqueueSnackbar(NOTIFICATIONS.OWNER_NAME_CHANGE_EXECUTED_MSG))
     }
     onClose()
@@ -49,7 +60,7 @@ export const EditOwnerModal = ({ isOpen, onClose, owner }: OwnProps): React.Reac
       description="Edit owner from Safe"
       handleClose={onClose}
       open={isOpen}
-      paperClassName="smaller-modal-window"
+      paperClassName={classes.smallerModalWindow}
       title="Edit owner from Safe"
     >
       <Row align="center" className={classes.heading} grow>
@@ -70,32 +81,43 @@ export const EditOwnerModal = ({ isOpen, onClose, owner }: OwnProps): React.Reac
                 <Row margin="md">
                   <Field
                     component={TextField}
-                    initialValue={owner.name}
+                    initialValue={selectedOwnerName}
                     name="ownerName"
                     placeholder="Owner name*"
                     testId={RENAME_OWNER_INPUT_TEST_ID}
                     text="Owner name*"
                     type="text"
-                    validate={composeValidators(required, validAddressBookName)}
+                    validate={composeValidators(required, minMaxLength(1, 50))}
                   />
                 </Row>
                 <Row>
                   <Block justify="center">
-                    <EthHashInfo
-                      hash={owner.address}
-                      showCopyBtn
-                      showAvatar
-                      explorerUrl={getExplorerInfo(owner.address)}
-                    />
+                    <Identicon address={ownerAddress} diameter={32} />
+                    <Paragraph color="disabled" noMargin size="md" style={{ marginLeft: sm, marginRight: sm }}>
+                      {ownerAddress}
+                    </Paragraph>
+                    <CopyBtn content={ownerAddress} />
+                    <ExplorerButton explorerUrl={getExplorerInfo(ownerAddress)} />
                   </Block>
                 </Row>
               </Block>
-              <GenericModal.Footer>
-                <GenericModal.Footer.Buttons
-                  cancelButtonProps={{ onClick: onClose }}
-                  confirmButtonProps={{ disabled: pristine, testId: SAVE_OWNER_CHANGES_BTN_TEST_ID, text: 'Save' }}
-                />
-              </GenericModal.Footer>
+              <Hairline />
+              <Row align="center" className={classes.buttonRow}>
+                <Button minHeight={42} minWidth={140} onClick={onClose}>
+                  Cancel
+                </Button>
+                <Button
+                  color="primary"
+                  minHeight={42}
+                  minWidth={140}
+                  testId={SAVE_OWNER_CHANGES_BTN_TEST_ID}
+                  type="submit"
+                  variant="contained"
+                  disabled={pristine}
+                >
+                  Save
+                </Button>
+              </Row>
             </>
           )
         }}

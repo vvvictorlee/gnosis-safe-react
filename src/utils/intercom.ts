@@ -1,15 +1,11 @@
 import { INTERCOM_ID } from 'src/utils/constants'
 
-let intercomLoaded = false
-
-export const isIntercomLoaded = () => intercomLoaded
-
 // eslint-disable-next-line consistent-return
-export const loadIntercom = (): void => {
+export const loadIntercom = () => {
   const APP_ID = INTERCOM_ID
   if (!APP_ID) {
     console.error('[Intercom] - In order to use Intercom you need to add an appID')
-    return
+    return null
   }
   const d = document
   const s = d.createElement('script')
@@ -24,12 +20,5 @@ export const loadIntercom = (): void => {
       app_id: APP_ID,
       consent: true,
     })
-    intercomLoaded = true
   }
-}
-
-export const closeIntercom = (): void => {
-  if (!isIntercomLoaded()) return
-  intercomLoaded = false
-  ;(window as any).Intercom('shutdown')
 }

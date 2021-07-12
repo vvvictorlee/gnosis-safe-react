@@ -1,15 +1,15 @@
-import { Text, Icon } from '@gnosis.pm/safe-react-components'
+import { Button, Text } from '@gnosis.pm/safe-react-components'
 import TableContainer from '@material-ui/core/TableContainer'
 import cn from 'classnames'
 import React, { ReactElement, useState } from 'react'
 import { useSelector } from 'react-redux'
+import styled from 'styled-components'
 
-import ButtonHelper from 'src/components/ButtonHelper'
 import Row from 'src/components/layout/Row'
 import { TableCell, TableRow } from 'src/components/layout/Table'
 import Table from 'src/components/Table'
 import { AddressInfo } from 'src/routes/safe/components/Settings/SpendingLimit/InfoDisplay'
-import { RemoveLimitModal } from 'src/routes/safe/components/Settings/SpendingLimit/RemoveLimitModal'
+import RemoveLimitModal from 'src/routes/safe/components/Settings/SpendingLimit/RemoveLimitModal'
 import { useStyles } from 'src/routes/safe/components/Settings/SpendingLimit/style'
 import { grantedSelector } from 'src/routes/safe/container/selector'
 
@@ -20,13 +20,22 @@ import {
   SPENDING_LIMIT_TABLE_SPENT_ID,
   SpendingLimitTable,
 } from './dataFetcher'
-import { SpentVsAmount } from './SpentVsAmount'
+import SpentVsAmount from './SpentVsAmount'
+
+const TableActionButton = styled(Button)`
+  background-color: transparent;
+  padding: 0;
+
+  &:hover {
+    background-color: transparent;
+  }
+`
 
 interface SpendingLimitTableProps {
   data?: SpendingLimitTable[]
 }
 
-export const LimitsTable = ({ data }: SpendingLimitTableProps): ReactElement => {
+const LimitsTable = ({ data }: SpendingLimitTableProps): ReactElement => {
   const classes = useStyles()
   const granted = useSelector(grantedSelector)
 
@@ -44,7 +53,7 @@ export const LimitsTable = ({ data }: SpendingLimitTableProps): ReactElement => 
           defaultFixed
           defaultOrderBy={SPENDING_LIMIT_TABLE_BENEFICIARY_ID}
           defaultRowsPerPage={5}
-          label="Spending limits"
+          label="Spending Limits"
           noBorder
           size={data?.length}
         >
@@ -73,9 +82,16 @@ export const LimitsTable = ({ data }: SpendingLimitTableProps): ReactElement => 
                 <TableCell component="td">
                   <Row align="end" className={classes.actions}>
                     {granted && (
-                      <ButtonHelper onClick={() => setSelectedRow(row)} data-testid="remove-limit-btn">
-                        <Icon size="sm" type="delete" color="error" tooltip="Remove limit" />
-                      </ButtonHelper>
+                      <TableActionButton
+                        size="md"
+                        iconType="delete"
+                        color="error"
+                        variant="outlined"
+                        onClick={() => setSelectedRow(row)}
+                        data-testid="remove-action"
+                      >
+                        {null}
+                      </TableActionButton>
                     )}
                   </Row>
                 </TableCell>
@@ -90,3 +106,5 @@ export const LimitsTable = ({ data }: SpendingLimitTableProps): ReactElement => 
     </>
   )
 }
+
+export default LimitsTable

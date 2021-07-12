@@ -1,29 +1,33 @@
-import { EthHashInfo } from '@gnosis.pm/safe-react-components'
+import { ExplorerButton } from '@gnosis.pm/safe-react-components'
 import IconButton from '@material-ui/core/IconButton'
 import { makeStyles } from '@material-ui/core/styles'
 import Close from '@material-ui/icons/Close'
 import React, { useState } from 'react'
 import { useSelector } from 'react-redux'
 
-import Divider from 'src/components/Divider'
+import CopyBtn from 'src/components/CopyBtn'
 import GnoForm from 'src/components/forms/GnoForm'
+import Identicon from 'src/components/Identicon'
 import Block from 'src/components/layout/Block'
+import Button from 'src/components/layout/Button'
 import Col from 'src/components/layout/Col'
 import Hairline from 'src/components/layout/Hairline'
 import Paragraph from 'src/components/layout/Paragraph'
 import Row from 'src/components/layout/Row'
 import { ScanQRWrapper } from 'src/components/ScanQRModal/ScanQRWrapper'
-import { Modal } from 'src/components/Modal'
 import WhenFieldChanges from 'src/components/WhenFieldChanges'
-import { currentNetworkAddressBook } from 'src/logic/addressBook/store/selectors'
-import { nftAssetsSelector, nftTokensSelector } from 'src/logic/collectibles/store/selectors'
-import { Erc721Transfer } from 'src/logic/safe/store/models/types/gateway'
+import { addressBookSelector } from 'src/logic/addressBook/store/selectors'
+import { getNameFromAddressBook } from 'src/logic/addressBook/utils'
+import { nftTokensSelector, safeActiveSelectorMap } from 'src/logic/collectibles/store/selectors'
 import SafeInfo from 'src/routes/safe/components/Balances/SendModal/SafeInfo'
 import { AddressBookInput } from 'src/routes/safe/components/Balances/SendModal/screens/AddressBookInput'
 import { NFTToken } from 'src/logic/collectibles/sources/collectibles.d'
 import { getExplorerInfo } from 'src/config'
 import { sameAddress } from 'src/logic/wallets/ethAddresses'
+import { sm } from 'src/theme/variables'
 import { sameString } from 'src/utils/strings'
+
+import ArrowDown from 'src/routes/safe/components/Balances/SendModal/screens/assets/arrow-down.svg'
 
 import { CollectibleSelectField } from './CollectibleSelectField'
 import { styles } from './style'
@@ -48,7 +52,7 @@ type SendCollectibleProps = {
   onClose: () => void
   onNext: (txInfo: SendCollectibleTxInfo) => void
   recipientAddress?: string
-  selectedToken?: NFTToken | Erc721Transfer
+  selectedToken?: NFTToken
 }
 
 export type SendCollectibleTxInfo = {
@@ -56,7 +60,6 @@ export type SendCollectibleTxInfo = {
   assetName: string
   nftTokenId: string
   recipientAddress?: string
-  recipientName?: string
 }
 
 const SendCollectible = ({
@@ -67,11 +70,11 @@ const SendCollectible = ({
   selectedToken,
 }: SendCollectibleProps): React.ReactElement => {
   const classes = useStyles()
-  const nftAssets = useSelector(nftAssetsSelector)
+  const nftAssets = useSelector(safeActiveSelectorMap)
   const nftTokens = useSelector(nftTokensSelector)
-  const addressBook = useSelector(currentNetworkAddressBook)
+  const addressBook = useSelector(addressBookSelector)
   const [selectedEntry, setSelectedEntry] = useState<{ address: string; name: string } | null>(() => {
-    const defaultEntry = { address: recipientAddress || '', name: '' }
+    const defaultEntry = { address: '', name: '' }
 
     // if there's nothing to lookup for, we return the default entry
     if (!initialValues?.recipientAddress && !recipientAddress) {
@@ -106,7 +109,7 @@ const SendCollectible = ({
     if (!values.recipientAddress) {
       values.recipientAddress = selectedEntry?.address
     }
-    values.recipientName = selectedEntry?.name
+
     values.assetName = nftAssets[values.assetAddress].name
 
     onNext(values)
@@ -116,7 +119,7 @@ const SendCollectible = ({
     <>
       <Row align="center" className={classes.heading} grow>
         <Paragraph className={classes.manage} noMargin weight="bolder">
-          Send collectible
+          Send Collectible
         </Paragraph>
         <Paragraph className={classes.annotation}>1 of 2</Paragraph>
         <IconButton disableRipple onClick={onClose}>
@@ -137,7 +140,7 @@ const SendCollectible = ({
             if (scannedAddress.startsWith('ethereum:')) {
               scannedAddress = scannedAddress.replace('ethereum:', '')
             }
-            const scannedName = addressBook[scannedAddress]?.name ?? ''
+            const scannedName = addressBook ? getNameFromAddressBook(addressBook, scannedAddress) : ''
             mutators.setRecipient(scannedAddress)
             setSelectedEntry({
               name: scannedName ?? '',
@@ -157,7 +160,14 @@ const SendCollectible = ({
               <WhenFieldChanges field="assetAddress" set="nftTokenId" to={''} />
               <Block className={classes.formContainer}>
                 <SafeInfo />
-                <Divider withArrow />
+                <Row margin="md">
+                  <Col xs={1}>
+                    <img alt="Arrow Down" src={ArrowDown} style={{ marginLeft: sm }} />
+                  </Col>
+                  <Col center="xs" layout="column" xs={11}>
+                    <Hairline />
+                  </Col>
+                </Row>
                 {selectedEntry && selectedEntry.address ? (
                   <div
                     onKeyDown={(e) => {
@@ -178,14 +188,32 @@ const SendCollectible = ({
                       </Paragraph>
                     </Row>
                     <Row align="center" margin="md">
-                      <Col xs={12}>
-                        <EthHashInfo
-                          hash={selectedEntry.address}
-                          name={selectedEntry.name}
-                          showAvatar
-                          showCopyBtn
-                          explorerUrl={getExplorerInfo(selectedEntry.address)}
-                        />
+                      <Col xs={1}>
+                        <Identicon address={selectedEntry.address} diameter={32} />
+                      </Col>
+                      <Col layout="column" xs={11}>
+                        <Block justify="left">
+                          <Block>
+                            <Paragraph
+                              className={classes.selectAddress}
+                              noMargin
+                              onClick={() => setSelectedEntry({ address: '', name: 'string' })}
+                              weight="bolder"
+                            >
+                              {selectedEntry.name}
+                            </Paragraph>
+                            <Paragraph
+                              className={classes.selectAddress}
+                              noMargin
+                              onClick={() => setSelectedEntry({ address: '', name: 'string' })}
+                              weight="bolder"
+                            >
+                              {selectedEntry.address}
+                            </Paragraph>
+                          </Block>
+                          <CopyBtn content={selectedEntry.address} />
+                          <ExplorerButton explorerUrl={getExplorerInfo(selectedEntry.address)} />
+                        </Block>
                       </Col>
                     </Row>
                   </div>
@@ -215,12 +243,7 @@ const SendCollectible = ({
                 </Row>
                 <Row margin="sm">
                   <Col>
-                    <TokenSelectField
-                      assets={nftAssets}
-                      initialValue={
-                        (selectedToken as NFTToken)?.assetAddress ?? (selectedToken as Erc721Transfer)?.tokenAddress
-                      }
-                    />
+                    <TokenSelectField assets={nftAssets} initialValue={selectedToken?.assetAddress} />
                   </Col>
                 </Row>
                 <Row margin="xs">
@@ -236,12 +259,23 @@ const SendCollectible = ({
                   </Col>
                 </Row>
               </Block>
-              <Modal.Footer>
-                <Modal.Footer.Buttons
-                  cancelButtonProps={{ onClick: onClose }}
-                  confirmButtonProps={{ disabled: shouldDisableSubmitButton, testId: 'review-tx-btn', text: 'Review' }}
-                />
-              </Modal.Footer>
+              <Hairline />
+              <Row align="center" className={classes.buttonRow}>
+                <Button minWidth={140} onClick={onClose}>
+                  Cancel
+                </Button>
+                <Button
+                  className={classes.submitButton}
+                  color="primary"
+                  data-testid="review-tx-btn"
+                  disabled={shouldDisableSubmitButton}
+                  minWidth={140}
+                  type="submit"
+                  variant="contained"
+                >
+                  Review
+                </Button>
+              </Row>
             </>
           )
         }}

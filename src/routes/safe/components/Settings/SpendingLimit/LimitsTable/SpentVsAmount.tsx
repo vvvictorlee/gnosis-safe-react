@@ -41,7 +41,7 @@ interface SpentVsAmountProps {
   tokenAddress: string
 }
 
-export const SpentVsAmount = ({ amount, spent, tokenAddress }: SpentVsAmountProps): ReactElement | null => {
+const SpentVsAmount = ({ amount, spent, tokenAddress }: SpentVsAmountProps): ReactElement | null => {
   const { width } = useWindowDimensions()
   const showIcon = useMemo(() => width > 1024, [width])
 
@@ -55,3 +55,5 @@ export const SpentVsAmount = ({ amount, spent, tokenAddress }: SpentVsAmountProp
     </StyledImageName>
   ) : null
 }
+
+export default SpentVsAmount

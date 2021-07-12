@@ -10,7 +10,6 @@ const useStyles = makeStyles({
     marginLeft: '5px',
     marginRight: '10px',
     letterSpacing: '-0.5px',
-    flex: 'none',
   },
   icon: {
     maxWidth: 'none',
@@ -24,7 +23,7 @@ interface WalletIconProps {
 const WalletIcon = ({ provider }: WalletIconProps): React.ReactElement => {
   const classes = useStyles()
   return (
-    <Col className={classes.container} start="sm">
+    <Col className={classes.container} layout="column" start="sm">
       <Img
         alt={provider}
         className={classes.icon}

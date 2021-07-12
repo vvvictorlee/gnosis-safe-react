@@ -39,6 +39,7 @@ const wallets: Wallet[] = [
     LedgerTransport: (window as any).TransportNodeHid,
   },
   { walletName: WALLETS.TRUST, preferred: true, desktop: false },
+  { walletName: WALLETS.DAPPER, desktop: false },
   {
     walletName: WALLETS.LATTICE,
     rpcUrl,
@@ -57,6 +58,7 @@ const wallets: Wallet[] = [
   },
   { walletName: WALLETS.AUTHEREUM, desktop: false },
   { walletName: WALLETS.TORUS, desktop: true },
+  { walletName: WALLETS.UNILOGIN, desktop: true },
   { walletName: WALLETS.COINBASE, desktop: false },
   { walletName: WALLETS.WALLET_LINK, rpcUrl, desktop: false },
   { walletName: WALLETS.OPERA, desktop: false },
@@ -64,7 +66,7 @@ const wallets: Wallet[] = [
 ]
 
 export const getSupportedWallets = (): WalletInitOptions[] => {
-  const { isDesktop } = window
+  const { isDesktop } = window as any
   /* eslint-disable no-unused-vars */
   if (isDesktop) {
     return wallets.filter((wallet) => wallet.desktop).map(({ desktop, ...rest }) => rest)

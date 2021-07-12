@@ -6,10 +6,12 @@ export enum WALLETS {
   TREZOR = 'trezor',
   LEDGER = 'ledger',
   TRUST = 'trust',
+  DAPPER = 'dapper',
   FORTMATIC = 'fortmatic',
   PORTIS = 'portis',
   AUTHEREUM = 'authereum',
   TORUS = 'torus',
+  UNILOGIN = 'unilogin',
   COINBASE = 'coinbase',
   WALLET_LINK = 'walletLink',
   OPERA = 'opera',
@@ -22,7 +24,7 @@ export enum FEATURES {
   ERC1155 = 'ERC1155',
   SAFE_APPS = 'SAFE_APPS',
   CONTRACT_INTERACTION = 'CONTRACT_INTERACTION',
-  DOMAIN_LOOKUP = 'DOMAIN_LOOKUP',
+  ENS_LOOKUP = 'ENS_LOOKUP',
 }
 
 type Token = {
@@ -34,19 +36,17 @@ type Token = {
 }
 
 export enum ETHEREUM_NETWORK {
-  UNKNOWN = 0,
-  MAINNET = 1,
+  MAINNET = 56,
   MORDEN = 2,
   ROPSTEN = 3,
   RINKEBY = 4,
   GOERLI = 5,
   KOVAN = 42,
   XDAI = 100,
-  HSC = 70,
-  HSCTEST = 170,
   ENERGY_WEB_CHAIN = 246,
-  LOCAL = 4447,
   VOLTA = 73799,
+  UNKNOWN = 0,
+  LOCAL = 4447,
 }
 
 export type NetworkSettings = {
@@ -85,12 +85,10 @@ type GasPrice =
     }
 
 export type EnvironmentSettings = GasPrice & {
-  clientGatewayUrl: string
   txServiceUrl: string
-  // TODO: Shall we keep a reference to the relay?
+  // Shall we keep a reference to the relay?
   relayApiUrl?: string
   safeAppsUrl: string
-  safeUrl: string
   rpcServiceUrl: string
   networkExplorerName: string
   networkExplorerUrl: string
@@ -102,8 +100,6 @@ type SafeEnvironments = {
   staging?: EnvironmentSettings
   production: EnvironmentSettings
 }
-
-export type NetworkInfo = Omit<NetworkSettings, 'isTestNet' | 'nativeCoin'> & { safeUrl: string }
 
 export interface NetworkConfig {
   network: NetworkSettings

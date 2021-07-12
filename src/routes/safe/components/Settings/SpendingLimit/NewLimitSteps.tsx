@@ -28,7 +28,7 @@ const StepsLine = styled.div`
   margin: 46px 0;
 `
 
-export const NewLimitSteps = (): ReactElement => (
+const NewLimitSteps = (): ReactElement => (
   <StepWrapper>
     <Step>
       <Img alt="Select Beneficiary" title="Beneficiary" height={96} src={Beneficiary} />
@@ -38,7 +38,7 @@ export const NewLimitSteps = (): ReactElement => (
       </Text>
 
       <Text size="lg" color="placeHolder" center>
-        Define beneficiary that will be able to use the allowance.
+        Choose an account that will benefit from this allowance.
       </Text>
 
       <Text size="lg" color="placeHolder" center>
@@ -75,3 +75,5 @@ export const NewLimitSteps = (): ReactElement => (
     </Step>
   </StepWrapper>
 )
+
+export default NewLimitSteps

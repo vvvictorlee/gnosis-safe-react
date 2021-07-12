@@ -1,5 +1,4 @@
-import { EthHashInfo } from '@gnosis.pm/safe-react-components'
-import React, { ReactElement, useState } from 'react'
+import React, { useState } from 'react'
 import { useSelector } from 'react-redux'
 import IconButton from '@material-ui/core/IconButton'
 import InputAdornment from '@material-ui/core/InputAdornment'
@@ -7,31 +6,34 @@ import { makeStyles } from '@material-ui/core/styles'
 import Switch from '@material-ui/core/Switch'
 import Close from '@material-ui/icons/Close'
 
-import Divider from 'src/components/Divider'
 import QRIcon from 'src/assets/icons/qrcode.svg'
+import CopyBtn from 'src/components/CopyBtn'
 import Field from 'src/components/forms/Field'
 import GnoForm from 'src/components/forms/GnoForm'
-import { TextAreaField } from 'src/components/forms/TextAreaField'
+import TextareaField from 'src/components/forms/TextareaField'
 import TextField from 'src/components/forms/TextField'
-import { composeValidators, maxValue, minValue, mustBeFloat, mustBeHexData } from 'src/components/forms/validator'
+import { composeValidators, maxValue, minValue, mustBeFloat } from 'src/components/forms/validator'
+import Identicon from 'src/components/Identicon'
 import Block from 'src/components/layout/Block'
+import Button from 'src/components/layout/Button'
 import ButtonLink from 'src/components/layout/ButtonLink'
 import Col from 'src/components/layout/Col'
 import Hairline from 'src/components/layout/Hairline'
 import Img from 'src/components/layout/Img'
 import Paragraph from 'src/components/layout/Paragraph'
 import Row from 'src/components/layout/Row'
-import { Modal } from 'src/components/Modal'
 import { ScanQRModal } from 'src/components/ScanQRModal'
-import { currentSafeEthBalance } from 'src/logic/safe/store/selectors'
+import { safeSelector } from 'src/logic/safe/store/selectors'
 import SafeInfo from 'src/routes/safe/components/Balances/SendModal/SafeInfo'
 import { ContractsAddressBookInput } from 'src/routes/safe/components/Balances/SendModal/screens/AddressBookInput'
+import { sm } from 'src/theme/variables'
 import { sameString } from 'src/utils/strings'
+
+import ArrowDown from '../../assets/arrow-down.svg'
 
 import { styles } from './style'
 import { getExplorerInfo, getNetworkInfo } from 'src/config'
-import { addressBookState } from 'src/logic/addressBook/store/selectors'
-import { sameAddress } from 'src/logic/wallets/ethAddresses'
+import { ExplorerButton } from '@gnosis.pm/safe-react-components'
 
 export interface CreatedTx {
   contractAddress: string
@@ -56,36 +58,13 @@ const useStyles = makeStyles(styles)
 
 const { nativeCoin } = getNetworkInfo()
 
-const SendCustomTx = ({
-  initialValues,
-  onClose,
-  onNext,
-  contractAddress,
-  switchMethod,
-  isABI,
-}: Props): ReactElement => {
+const SendCustomTx: React.FC<Props> = ({ initialValues, onClose, onNext, contractAddress, switchMethod, isABI }) => {
   const classes = useStyles()
-  const ethBalance = useSelector(currentSafeEthBalance)
-  const addressBook = useSelector(addressBookState)
+  const { ethBalance } = useSelector(safeSelector) || {}
   const [qrModalOpen, setQrModalOpen] = useState<boolean>(false)
-  const [selectedEntry, setSelectedEntry] = useState<{ address?: string; name: string } | null>(() => {
-    const defaultEntry = {
-      // `initialValue` has precedence over `contractAddress`
-      address: initialValues?.contractAddress ?? contractAddress,
-      name: '',
-    }
-
-    // if there's nothing to lookup for, we return the default entry
-    if (!defaultEntry.address) {
-      return defaultEntry
-    }
-
-    const addressBookEntry = addressBook.find(({ address }) => sameAddress(address, defaultEntry.address))
-    if (addressBookEntry) {
-      return addressBookEntry
-    }
-
-    return defaultEntry
+  const [selectedEntry, setSelectedEntry] = useState<{ address?: string; name?: string | null } | null>({
+    address: contractAddress || initialValues.contractAddress,
+    name: '',
   })
   const [isValidAddress, setIsValidAddress] = useState<boolean>(true)
 
@@ -96,14 +75,7 @@ const SendCustomTx = ({
 
   const handleSubmit = (values: any, submit = true) => {
     if (values.data || values.value) {
-      const submitValues = { ...values }
-
-      if (!values.contractAddress) {
-        submitValues.contractAddress = selectedEntry?.address
-      }
-      submitValues.contractName = selectedEntry?.name
-
-      onNext(submitValues, submit)
+      onNext(values, submit)
     }
   }
 
@@ -128,7 +100,7 @@ const SendCustomTx = ({
     <>
       <Row align="center" className={classes.heading} grow>
         <Paragraph className={classes.manage} noMargin weight="bolder">
-          Contract interaction
+          Send custom transactions
         </Paragraph>
         <Paragraph className={classes.annotation}>1 of 2</Paragraph>
         <IconButton disableRipple onClick={onClose}>
@@ -165,7 +137,14 @@ const SendCustomTx = ({
             <>
               <Block className={classes.formContainer}>
                 <SafeInfo />
-                <Divider withArrow />
+                <Row margin="md">
+                  <Col xs={1}>
+                    <img alt="Arrow Down" src={ArrowDown} style={{ marginLeft: sm }} />
+                  </Col>
+                  <Col center="xs" layout="column" xs={11}>
+                    <Hairline />
+                  </Col>
+                </Row>
                 {selectedEntry && selectedEntry.address ? (
                   <div
                     onKeyDown={(e) => {
@@ -182,18 +161,36 @@ const SendCustomTx = ({
                   >
                     <Row margin="xs">
                       <Paragraph color="disabled" noMargin size="md" style={{ letterSpacing: '-0.5px' }}>
-                        Contract address
+                        Recipient
                       </Paragraph>
                     </Row>
                     <Row align="center" margin="md">
-                      <Col xs={12}>
-                        <EthHashInfo
-                          hash={selectedEntry.address}
-                          name={selectedEntry.name}
-                          showAvatar
-                          showCopyBtn
-                          explorerUrl={getExplorerInfo(selectedEntry.address)}
-                        />
+                      <Col xs={1}>
+                        <Identicon address={selectedEntry.address} diameter={32} />
+                      </Col>
+                      <Col layout="column" xs={11}>
+                        <Block justify="left">
+                          <Block>
+                            <Paragraph
+                              className={classes.selectAddress}
+                              noMargin
+                              onClick={() => setSelectedEntry(null)}
+                              weight="bolder"
+                            >
+                              {selectedEntry.name}
+                            </Paragraph>
+                            <Paragraph
+                              className={classes.selectAddress}
+                              noMargin
+                              onClick={() => setSelectedEntry(null)}
+                              weight="bolder"
+                            >
+                              {selectedEntry.address}
+                            </Paragraph>
+                          </Block>
+                          <CopyBtn content={selectedEntry.address} />
+                          <ExplorerButton explorerUrl={getExplorerInfo(selectedEntry.address)} />
+                        </Block>
                       </Col>
                     </Row>
                   </div>
@@ -206,7 +203,6 @@ const SendCustomTx = ({
                           pristine={pristine}
                           setIsValidAddress={setIsValidAddress}
                           setSelectedEntry={setSelectedEntry}
-                          label="Contract address"
                         />
                       </Col>
                       <Col center="xs" className={classes} middle="xs" xs={1}>
@@ -251,26 +247,36 @@ const SendCustomTx = ({
                 </Row>
                 <Row margin="sm">
                   <Col>
-                    <TextAreaField
+                    <TextareaField
                       name="data"
                       placeholder="Data (hex encoded)*"
                       text="Data (hex encoded)*"
                       type="text"
-                      validate={mustBeHexData}
                     />
                   </Col>
                 </Row>
-                <Paragraph color="disabled" noMargin size="lg" style={{ letterSpacing: '-0.5px' }}>
-                  <Switch onChange={() => saveForm(args[2].values)} checked={!isABI} />
+                <Paragraph color="disabled" noMargin size="md" style={{ letterSpacing: '-0.5px' }}>
                   Use custom data (hex encoded)
+                  <Switch onChange={() => saveForm(args[2].values)} checked={!isABI} />
                 </Paragraph>
               </Block>
-              <Modal.Footer>
-                <Modal.Footer.Buttons
-                  cancelButtonProps={{ onClick: onClose }}
-                  confirmButtonProps={{ disabled: shouldDisableSubmitButton, testId: 'review-tx-btn', text: 'Review' }}
-                />
-              </Modal.Footer>
+              <Hairline />
+              <Row align="center" className={classes.buttonRow}>
+                <Button minWidth={140} onClick={onClose}>
+                  Cancel
+                </Button>
+                <Button
+                  className={classes.submitButton}
+                  color="primary"
+                  data-testid="review-tx-btn"
+                  disabled={shouldDisableSubmitButton}
+                  minWidth={140}
+                  type="submit"
+                  variant="contained"
+                >
+                  Review
+                </Button>
+              </Row>
               {qrModalOpen && <ScanQRModal isOpen={qrModalOpen} onClose={closeQrModal} onScan={handleScan} />}
             </>
           )

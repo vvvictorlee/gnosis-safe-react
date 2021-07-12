@@ -4,15 +4,13 @@ import { makeStyles } from '@material-ui/core/styles'
 import { Icon } from '@gnosis.pm/safe-react-components'
 import * as React from 'react'
 import styled from 'styled-components'
-
-import { DefaultSafe } from 'src/logic/safe/store/reducer/types/safe'
+import { SafeRecord } from 'src/logic/safe/store/models/safe'
+import { DefaultSafe } from 'src/routes/safe/store/reducer/types/safe'
 import Hairline from 'src/components/layout/Hairline'
 import Link from 'src/components/layout/Link'
 import { sameAddress } from 'src/logic/wallets/ethAddresses'
 import { SAFELIST_ADDRESS } from 'src/routes/routes'
 import { AddressWrapper } from 'src/components/SafeListSidebar/SafeList/AddressWrapper'
-import { SafeRecordWithNames } from 'src/logic/safe/store/selectors'
-
 export const SIDEBAR_SAFELIST_ROW_TESTID = 'SIDEBAR_SAFELIST_ROW_TESTID'
 
 const StyledIcon = styled(Icon)`
@@ -43,13 +41,13 @@ const useStyles = makeStyles({
 })
 
 type Props = {
-  currentSafeAddress: string | undefined
-  defaultSafeAddress: DefaultSafe
-  safes: SafeRecordWithNames[]
+  currentSafe: string | undefined
+  defaultSafe: DefaultSafe
+  safes: SafeRecord[]
   onSafeClick: () => void
 }
 
-export const SafeList = ({ currentSafeAddress, defaultSafeAddress, onSafeClick, safes }: Props): React.ReactElement => {
+export const SafeList = ({ currentSafe, defaultSafe, onSafeClick, safes }: Props): React.ReactElement => {
   const classes = useStyles()
 
   return (
@@ -62,12 +60,12 @@ export const SafeList = ({ currentSafeAddress, defaultSafeAddress, onSafeClick, 
             to={`${SAFELIST_ADDRESS}/${safe.address}/balances`}
           >
             <ListItem classes={{ root: classes.listItemRoot }}>
-              {sameAddress(currentSafeAddress, safe.address) ? (
+              {sameAddress(currentSafe, safe.address) ? (
                 <StyledIcon type="check" size="md" color="primary" />
               ) : (
                 <div className={classes.noIcon}>placeholder</div>
               )}
-              <AddressWrapper safe={safe} defaultSafeAddress={defaultSafeAddress} />
+              <AddressWrapper safe={safe} defaultSafe={defaultSafe} />
             </ListItem>
           </Link>
           <Hairline />

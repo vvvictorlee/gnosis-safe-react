@@ -6,7 +6,7 @@ import MenuItem from '@material-ui/core/MenuItem'
 import { MuiThemeProvider } from '@material-ui/core/styles'
 import SearchIcon from '@material-ui/icons/Search'
 import classNames from 'classnames'
-import React, { ReactElement, useEffect, useState } from 'react'
+import React from 'react'
 import { useField, useFormState } from 'react-final-form'
 import { AbiItem } from 'web3-utils'
 
@@ -17,20 +17,14 @@ import CheckIcon from 'src/routes/safe/components/CurrencyDropdown/img/check.svg
 import { useDropdownStyles } from 'src/routes/safe/components/CurrencyDropdown/style'
 import { DropdownListTheme } from 'src/theme/mui'
 import { extractUsefulMethods, AbiItemExtended } from 'src/logic/contractInteraction/sources/ABIService'
-import { Text } from '@gnosis.pm/safe-react-components'
-import styled from 'styled-components'
 
 const MENU_WIDTH = '452px'
-
-const StyledText = styled(Text)`
-  padding: 4px 0 0 8px;
-`
 
 interface MethodsDropdownProps {
   onChange: (method: AbiItem) => void
 }
 
-export const MethodsDropdown = ({ onChange }: MethodsDropdownProps): ReactElement | null => {
+const MethodsDropdown = ({ onChange }: MethodsDropdownProps): React.ReactElement | null => {
   const classes = useDropdownStyles({ buttonWidth: MENU_WIDTH })
   const {
     input: { value: abi },
@@ -39,14 +33,13 @@ export const MethodsDropdown = ({ onChange }: MethodsDropdownProps): ReactElemen
   const {
     initialValues: { selectedMethod: selectedMethodByDefault },
   } = useFormState({ subscription: { initialValues: true } })
-  const [selectedMethod, setSelectedMethod] = useState(selectedMethodByDefault ? selectedMethodByDefault : {})
-  const [methodsList, setMethodsList] = useState<AbiItemExtended[]>([])
-  const [methodsListFiltered, setMethodsListFiltered] = useState<AbiItemExtended[]>([])
+  const [selectedMethod, setSelectedMethod] = React.useState(selectedMethodByDefault ? selectedMethodByDefault : {})
+  const [methodsList, setMethodsList] = React.useState<AbiItemExtended[]>([])
+  const [methodsListFiltered, setMethodsListFiltered] = React.useState<AbiItemExtended[]>([])
+  const [anchorEl, setAnchorEl] = React.useState(null)
+  const [searchParams, setSearchParams] = React.useState('')
 
-  const [anchorEl, setAnchorEl] = useState(null)
-  const [searchParams, setSearchParams] = useState('')
-
-  useEffect(() => {
+  React.useEffect(() => {
     if (abi) {
       try {
         setMethodsList(extractUsefulMethods(JSON.parse(abi)))
@@ -56,7 +49,7 @@ export const MethodsDropdown = ({ onChange }: MethodsDropdownProps): ReactElemen
     }
   }, [abi])
 
-  useEffect(() => {
+  React.useEffect(() => {
     setMethodsListFiltered(methodsList.filter(({ name }) => name?.toLowerCase().includes(searchParams.toLowerCase())))
   }, [methodsList, searchParams])
 
@@ -74,23 +67,15 @@ export const MethodsDropdown = ({ onChange }: MethodsDropdownProps): ReactElemen
     handleClose()
   }
 
-  if (!valid || !abi || abi === NO_CONTRACT) {
-    return null
-  }
-
-  return (
+  return !valid || !abi || abi === NO_CONTRACT ? null : (
     <Row margin="sm">
       <Col>
         <MuiThemeProvider theme={DropdownListTheme}>
           <>
             <button className={classes.button} onClick={handleClick} type="button">
-              <StyledText
-                size="md"
-                color="placeHolder"
-                className={classNames(classes.buttonInner, anchorEl && classes.openMenuButton)}
-              >
-                {(selectedMethod as Record<string, string>).name || 'Method'}
-              </StyledText>
+              <span className={classNames(classes.buttonInner, anchorEl && classes.openMenuButton)}>
+                {(selectedMethod as Record<string, string>).name}
+              </span>
             </button>
             <Menu
               anchorEl={anchorEl}
@@ -160,3 +145,5 @@ export const MethodsDropdown = ({ onChange }: MethodsDropdownProps): ReactElemen
     </Row>
   )
 }
+
+export default MethodsDropdown

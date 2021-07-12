@@ -25,7 +25,7 @@ const decodeInfo = ({ paramsHash, params }: DecodeInfoProps): DataDecoded['param
   }))
 }
 
-export const decodeParamsFromSafeMethod = (data: string): DataDecoded | undefined => {
+export const decodeParamsFromSafeMethod = (data: string): DataDecoded | null => {
   const [methodId, paramsHash] = [data.slice(0, 10), data.slice(10)]
   const method = SAFE_METHODS_NAMES[methodId]
 
@@ -99,7 +99,7 @@ export const decodeParamsFromSafeMethod = (data: string): DataDecoded | undefine
     }
 
     default:
-      return
+      return null
   }
 }
 
@@ -113,7 +113,7 @@ export const isDeleteAllowanceMethod = (data: string): boolean => {
   return sameString(SPENDING_LIMIT_METHOD_ID_TO_NAME[methodId], SPENDING_LIMIT_METHODS_NAMES.DELETE_ALLOWANCE)
 }
 
-export const decodeParamsFromSpendingLimit = (data: string): DataDecoded | undefined => {
+export const decodeParamsFromSpendingLimit = (data: string): DataDecoded | null => {
   const [methodId, paramsHash] = [data.slice(0, 10), data.slice(10)]
   const method = SPENDING_LIMIT_METHOD_ID_TO_NAME[methodId]
 
@@ -171,7 +171,7 @@ export const decodeParamsFromSpendingLimit = (data: string): DataDecoded | undef
     }
 
     default:
-      return
+      return null
   }
 }
 
@@ -183,9 +183,9 @@ const isSpendingLimitMethod = (methodId: string): boolean => {
   return !!SPENDING_LIMIT_METHOD_ID_TO_NAME[methodId]
 }
 
-export const decodeMethods = (data: string | null): DataDecoded | undefined => {
+export const decodeMethods = (data: string | null): DataDecoded | null => {
   if (!data?.length) {
-    return
+    return null
   }
 
   const [methodId, paramsHash] = [data.slice(0, 10), data.slice(10)]
@@ -226,6 +226,6 @@ export const decodeMethods = (data: string | null): DataDecoded | undefined => {
     }
 
     default:
-      return
+      return null
   }
 }

@@ -1,7 +1,7 @@
 import { GnosisSafe } from 'src/types/contracts/GnosisSafe.d'
 import { AbiItem } from 'web3-utils'
 import Web3 from 'web3'
-import GnosisSafeSol from '../../../build/contracts/GnosisSafe.json'
+import GnosisSafeSol from '@gnosis.pm/safe-contracts/build/contracts/GnosisSafe.json'
 import { checkIfSafeNeedsUpdate } from 'src/logic/safe/utils/safeVersion'
 
 describe('Check safe version', () => {

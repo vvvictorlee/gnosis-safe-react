@@ -17,21 +17,26 @@ import {
   getOwnerAddressBy,
   getOwnerNameBy,
 } from 'src/routes/open/components/fields'
-import { WelcomeLayout } from 'src/routes/welcome/components'
+import { WelcomeLayout } from 'src/routes/welcome/components/index'
 import { history } from 'src/store'
 import { secondary, sm } from 'src/theme/variables'
-import { providerNameSelector, userAccountSelector } from 'src/logic/wallets/store/selectors'
+import { networkSelector, providerNameSelector, userAccountSelector } from 'src/logic/wallets/store/selectors'
 import { useSelector } from 'react-redux'
-import { addressBookEntryName } from 'src/logic/addressBook/store/selectors'
-import { SafeProps } from 'src/routes/open/container/Open'
-import { ADDRESS_BOOK_DEFAULT_NAME } from 'src/logic/addressBook/model/addressBook'
-import { sameString } from 'src/utils/strings'
+import { addressBookSelector } from 'src/logic/addressBook/store/selectors'
+import { getNameFromAddressBook } from 'src/logic/addressBook/utils'
 
 const { useEffect } = React
 
 const getSteps = () => ['Name', 'Owners and confirmations', 'Review']
 
-export type InitialValuesForm = {
+type SafeProps = {
+  name: string
+  ownerAddresses: any
+  ownerNames: string
+  threshold: string
+}
+
+type InitialValuesForm = {
   owner0Address?: string
   owner0Name?: string
   confirmations: string
@@ -40,11 +45,12 @@ export type InitialValuesForm = {
 }
 
 const useInitialValuesFrom = (userAccount: string, safeProps?: SafeProps): InitialValuesForm => {
-  const ownerName = useSelector((state) => addressBookEntryName(state, { address: userAccount }))
+  const addressBook = useSelector(addressBookSelector)
+  const ownerName = getNameFromAddressBook(addressBook, userAccount, { filterOnlyValidName: true })
 
   if (!safeProps) {
     return {
-      [getOwnerNameBy(0)]: sameString(ownerName, ADDRESS_BOOK_DEFAULT_NAME) ? 'My Wallet' : ownerName,
+      [getOwnerNameBy(0)]: ownerName || 'My Wallet',
       [getOwnerAddressBy(0)]: userAccount,
       [FIELD_CONFIRMATIONS]: '1',
       [FIELD_CREATION_PROXY_SALT]: Date.now(),
@@ -94,6 +100,7 @@ export const Layout = (props: LayoutProps): React.ReactElement => {
   const { onCallSafeContractSubmit, safeProps } = props
 
   const provider = useSelector(providerNameSelector)
+  const network = useSelector(networkSelector)
   const userAccount = useSelector(userAccountSelector)
 
   useEffect(() => {
@@ -106,31 +113,33 @@ export const Layout = (props: LayoutProps): React.ReactElement => {
 
   const initialValues = useInitialValuesFrom(userAccount, safeProps)
 
-  if (!provider) {
-    return <WelcomeLayout isOldMultisigMigration />
-  }
-
   return (
-    <Block>
-      <Row align="center">
-        <IconButton disableRipple onClick={back} style={iconStyle}>
-          <ChevronLeft />
-        </IconButton>
-        <Heading tag="h2" testId="create-safe-form-title">
-          Create new Safe
-        </Heading>
-      </Row>
-      <Stepper
-        initialValues={initialValues}
-        mutators={formMutators}
-        onSubmit={onCallSafeContractSubmit}
-        steps={steps}
-        testId="create-safe-form"
-      >
-        <StepperPage component={SafeNameField} />
-        <StepperPage component={SafeOwnersPage} validate={validateOwnersForm} />
-        <StepperPage component={Review} />
-      </Stepper>
-    </Block>
+    <>
+      {provider ? (
+        <Block>
+          <Row align="center">
+            <IconButton disableRipple onClick={back} style={iconStyle}>
+              <ChevronLeft />
+            </IconButton>
+            <Heading tag="h2" testId="create-safe-form-title">
+              Create New Safe
+            </Heading>
+          </Row>
+          <Stepper
+            initialValues={initialValues}
+            mutators={formMutators}
+            onSubmit={onCallSafeContractSubmit}
+            steps={steps}
+            testId="create-safe-form"
+          >
+            <StepperPage component={SafeNameField} />
+            <StepperPage component={SafeOwnersPage} validate={validateOwnersForm} />
+            <StepperPage network={network} userAccount={userAccount} component={Review} />
+          </Stepper>
+        </Block>
+      ) : (
+        <WelcomeLayout isOldMultisigMigration />
+      )}
+    </>
   )
 }

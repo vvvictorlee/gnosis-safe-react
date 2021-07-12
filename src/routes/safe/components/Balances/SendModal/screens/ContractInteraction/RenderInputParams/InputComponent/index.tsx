@@ -1,11 +1,11 @@
 import { Checkbox } from '@gnosis.pm/safe-react-components'
-import React, { ReactElement } from 'react'
+import React from 'react'
 
 import Col from 'src/components/layout/Col'
 import Field from 'src/components/forms/Field'
 import TextField from 'src/components/forms/TextField'
 
-import { composeValidators, mustBeAddressHash, required } from 'src/components/forms/validator'
+import { composeValidators, mustBeEthereumAddress, required } from 'src/components/forms/validator'
 import { isArrayParameter } from 'src/routes/safe/components/Balances/SendModal/screens/ContractInteraction/utils'
 import ArrayTypeInput from './ArrayTypeInput'
 
@@ -15,7 +15,7 @@ type Props = {
   placeholder: string
 }
 
-export const InputComponent = ({ type, keyValue, placeholder }: Props): ReactElement | null => {
+const InputComponent = ({ type, keyValue, placeholder }: Props): React.ReactElement | null => {
   if (!type) {
     return null
   }
@@ -41,7 +41,7 @@ export const InputComponent = ({ type, keyValue, placeholder }: Props): ReactEle
             testId={keyValue}
             text={placeholder}
             type="text"
-            validate={composeValidators(required, mustBeAddressHash)}
+            validate={composeValidators(required, mustBeEthereumAddress)}
           />
         </Col>
       )
@@ -67,3 +67,5 @@ export const InputComponent = ({ type, keyValue, placeholder }: Props): ReactEle
     }
   }
 }
+
+export default InputComponent

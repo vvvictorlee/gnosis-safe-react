@@ -5,28 +5,24 @@ import React, { Dispatch, ReactElement, SetStateAction, useEffect, useState } fr
 import { useSelector } from 'react-redux'
 
 import { mustBeEthereumAddress, mustBeEthereumContractAddress } from 'src/components/forms/validator'
-import { getNetworkId, isFeatureEnabled } from 'src/config'
+import { isFeatureEnabled } from 'src/config'
 import { FEATURES } from 'src/config/networks/network.d'
 import { AddressBookEntry } from 'src/logic/addressBook/model/addressBook'
-import { currentNetworkAddressBook } from 'src/logic/addressBook/store/selectors'
+import { addressBookSelector } from 'src/logic/addressBook/store/selectors'
 import { filterContractAddressBookEntries, filterAddressEntries } from 'src/logic/addressBook/utils'
-import { isValidEnsName, isValidCryptoDomainName } from 'src/logic/wallets/ethAddresses'
-import { getAddressFromDomain } from 'src/logic/wallets/getWeb3'
+import { isValidEnsName } from 'src/logic/wallets/ethAddresses'
+import { getAddressFromENS } from 'src/logic/wallets/getWeb3'
 import {
   useTextFieldInputStyle,
   useTextFieldLabelStyle,
 } from 'src/routes/safe/components/Balances/SendModal/screens/AddressBookInput/style'
 import { trimSpaces } from 'src/utils/strings'
-import { Errors, logError } from 'src/logic/exceptions/CodedException'
-
-const chainId = getNetworkId()
 
 export interface AddressBookProps {
   fieldMutator: (address: string) => void
   label?: string
   pristine?: boolean
   recipientAddress?: string
-  errorMsg?: string
   setIsValidAddress: (valid: boolean) => void
   setSelectedEntry: Dispatch<SetStateAction<{ address: string; name: string }> | null>
 }
@@ -68,8 +64,8 @@ const BaseAddressBookInput = ({
   const onChange: AutocompleteProps<AddressBookEntry, false, false, true>['onChange'] = (_, value, reason) => {
     switch (reason) {
       case 'select-option': {
-        const { address, name, chainId } = value as AddressBookEntry
-        updateAddressInfo({ address, name, chainId })
+        const { address, name } = value as AddressBookEntry
+        updateAddressInfo({ address, name })
         break
       }
     }
@@ -89,16 +85,8 @@ const BaseAddressBookInput = ({
         }
 
         // ENS-enabled resolve/validation
-        if (
-          isFeatureEnabled(FEATURES.DOMAIN_LOOKUP) &&
-          (isValidEnsName(normalizedValue) || isValidCryptoDomainName(normalizedValue))
-        ) {
-          let address = ''
-          try {
-            address = await getAddressFromDomain(normalizedValue)
-          } catch (err) {
-            logError(Errors._101, err.message)
-          }
+        if (isFeatureEnabled(FEATURES.ENS_LOOKUP) && isValidEnsName(normalizedValue)) {
+          const address = await getAddressFromENS(normalizedValue).catch(() => normalizedValue)
 
           const validatedAddress = validateAddress(address)
 
@@ -107,14 +95,7 @@ const BaseAddressBookInput = ({
             break
           }
 
-          const newEntry =
-            typeof validatedAddress === 'string'
-              ? {
-                  address,
-                  name: normalizedValue,
-                  chainId,
-                }
-              : validatedAddress
+          const newEntry = typeof validatedAddress === 'string' ? { address, name: normalizedValue } : validatedAddress
 
           updateAddressInfo(newEntry)
           break
@@ -129,13 +110,7 @@ const BaseAddressBookInput = ({
         }
 
         const newEntry =
-          typeof validatedAddress === 'string'
-            ? {
-                address: validatedAddress,
-                name: '',
-                chainId,
-              }
-            : validatedAddress
+          typeof validatedAddress === 'string' ? { address: validatedAddress, name: '' } : validatedAddress
 
         updateAddressInfo(newEntry)
 
@@ -170,7 +145,7 @@ const BaseAddressBookInput = ({
         />
       )}
       getOptionLabel={({ address }) => address}
-      renderOption={({ address, name }) => <EthHashInfo hash={address} name={name} showAvatar />}
+      renderOption={({ address, name }) => <EthHashInfo hash={address} name={name} showIdenticon />}
       role="listbox"
       style={{ display: 'flex', flexGrow: 1 }}
     />
@@ -178,14 +153,8 @@ const BaseAddressBookInput = ({
 }
 
 export const AddressBookInput = (props: AddressBookProps): ReactElement => {
-  const addressBookEntries = useSelector(currentNetworkAddressBook)
+  const addressBookEntries = useSelector(addressBookSelector)
   const [validationText, setValidationText] = useState<string>('')
-
-  useEffect(() => {
-    if (props.errorMsg) {
-      setValidationText(props.errorMsg)
-    }
-  }, [props.errorMsg])
 
   return (
     <BaseAddressBookInput
@@ -202,7 +171,7 @@ export const ContractsAddressBookInput = ({
   setSelectedEntry,
   ...props
 }: AddressBookProps): ReactElement => {
-  const addressBookEntries = useSelector(currentNetworkAddressBook)
+  const addressBookEntries = useSelector(addressBookSelector)
   const [filteredEntries, setFilteredEntries] = useState<AddressBookEntry[]>([])
   const [validationText, setValidationText] = useState<string>('')
 

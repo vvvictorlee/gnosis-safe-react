@@ -11,7 +11,6 @@ import {
   ExplorerButton,
 } from '@gnosis.pm/safe-react-components'
 
-import ButtonHelper from 'src/components/ButtonHelper'
 import FlexSpacer from 'src/components/FlexSpacer'
 import { getExplorerInfo, getNetworkInfo } from 'src/config'
 import { NetworkSettings } from 'src/config/networks/network.d'
@@ -32,29 +31,20 @@ const IdenticonContainer = styled.div`
   margin: 8px;
   display: flex;
   justify-content: space-between;
-  align-items: center;
 
   div:first-of-type {
     width: 32px;
-  }
-`
-const StyledIcon = styled(Icon)`
-  svg {
-    height: 26px;
-    width: 26px;
   }
 `
 
 const IconContainer = styled.div`
   width: 100px;
   display: flex;
-  padding: 4px 0;
+  padding: 8px 0;
   justify-content: space-evenly;
 `
 const StyledButton = styled(Button)`
-  &&.MuiButton-root {
-    padding: 0 12px;
-  }
+  padding: 0 18px;
   *:first-child {
     margin: 0 4px 0 0;
   }
@@ -81,7 +71,7 @@ const StyledEthHashInfo = styled(EthHashInfo)`
 
 const StyledLabel = styled.div`
   background-color: ${({ theme }) => theme.colors.icon};
-  margin: 4px 0 0 0 !important;
+  margin: 8px 0 0 0 !important;
   padding: 4px 8px;
   border-radius: 4px;
   letter-spacing: 1px;
@@ -91,6 +81,17 @@ const StyledLabel = styled.div`
 `
 const StyledText = styled(Text)`
   margin: 8px 0 16px 0;
+`
+const UnStyledButton = styled.button`
+  background: none;
+  color: inherit;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  outline-color: ${({ theme }) => theme.colors.separator};
+  display: flex;
+  align-items: center;
 `
 
 type Props = {
@@ -118,9 +119,9 @@ const SafeHeader = ({
         <IdenticonContainer>
           <FlexSpacer />
           <FixedIcon type="notConnected" />
-          <ButtonHelper onClick={onToggleSafeList} data-testid={TOGGLE_SIDEBAR_BTN_TESTID}>
+          <UnStyledButton onClick={onToggleSafeList} data-testid={TOGGLE_SIDEBAR_BTN_TESTID}>
             <Icon size="md" type="circleDropdown" />
-          </ButtonHelper>
+          </UnStyledButton>
         </IdenticonContainer>
       </Container>
     )
@@ -140,18 +141,18 @@ const SafeHeader = ({
         <IdenticonContainer>
           <FlexSpacer />
           <Identicon address={address} size="lg" />
-          <ButtonHelper onClick={onToggleSafeList} data-testid={TOGGLE_SIDEBAR_BTN_TESTID}>
-            <StyledIcon size="md" type="circleDropdown" />
-          </ButtonHelper>
+          <UnStyledButton onClick={onToggleSafeList} data-testid={TOGGLE_SIDEBAR_BTN_TESTID}>
+            <Icon size="md" type="circleDropdown" />
+          </UnStyledButton>
         </IdenticonContainer>
 
         {/* SafeInfo */}
         <Text size="xl">{safeName}</Text>
         <StyledEthHashInfo hash={address} shortenHash={4} textSize="sm" />
         <IconContainer>
-          <ButtonHelper onClick={onReceiveClick}>
+          <UnStyledButton onClick={onReceiveClick}>
             <Icon size="sm" type="qrCode" tooltip="Show QR" />
-          </ButtonHelper>
+          </UnStyledButton>
           <CopyToClipboardBtn textToCopy={address} />
           <ExplorerButton explorerUrl={explorerUrl} />
         </IconContainer>
@@ -167,8 +168,8 @@ const SafeHeader = ({
         <StyledText size="xl">{balance}</StyledText>
         <StyledButton size="md" disabled={!granted} color="primary" variant="contained" onClick={onNewTransactionClick}>
           <FixedIcon type="arrowSentWhite" />
-          <Text size="xl" color="white">
-            New transaction
+          <Text size="lg" color="white">
+            New Transaction
           </Text>
         </StyledButton>
       </Container>

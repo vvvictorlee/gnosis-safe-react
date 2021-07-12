@@ -1,77 +1,46 @@
 import IconButton from '@material-ui/core/IconButton'
+import { withStyles } from '@material-ui/core/styles'
 import Close from '@material-ui/icons/Close'
-import { Mutator } from 'final-form'
-import React, { ReactElement } from 'react'
+import classNames from 'classnames/bind'
+import React from 'react'
 import { useSelector } from 'react-redux'
-import { OnChange } from 'react-final-form-listeners'
 
+import CopyBtn from 'src/components/CopyBtn'
 import AddressInput from 'src/components/forms/AddressInput'
 import Field from 'src/components/forms/Field'
 import GnoForm from 'src/components/forms/GnoForm'
 import TextField from 'src/components/forms/TextField'
-import {
-  addressIsNotCurrentSafe,
-  composeValidators,
-  required,
-  uniqueAddress,
-  validAddressBookName,
-} from 'src/components/forms/validator'
+import { composeValidators, minMaxLength, required, uniqueAddress } from 'src/components/forms/validator'
+import Identicon from 'src/components/Identicon'
 import Block from 'src/components/layout/Block'
+import Button from 'src/components/layout/Button'
 import Col from 'src/components/layout/Col'
 import Hairline from 'src/components/layout/Hairline'
 import Paragraph from 'src/components/layout/Paragraph'
 import Row from 'src/components/layout/Row'
 import { ScanQRWrapper } from 'src/components/ScanQRModal/ScanQRWrapper'
-import { Modal } from 'src/components/Modal'
-import { currentSafe } from 'src/logic/safe/store/selectors'
-import { currentNetworkAddressBookAsMap } from 'src/logic/addressBook/store/selectors'
-import { OwnerData } from 'src/routes/safe/components/Settings/ManageOwners/dataFetcher'
-import { isValidAddress } from 'src/utils/isValidAddress'
+import { safeOwnersAddressesListSelector } from 'src/logic/safe/store/selectors'
 
-import { useStyles } from './style'
+import { styles } from './style'
 import { getExplorerInfo } from 'src/config'
-import { EthHashInfo } from '@gnosis.pm/safe-react-components'
+import { ExplorerButton } from '@gnosis.pm/safe-react-components'
 
 export const REPLACE_OWNER_NAME_INPUT_TEST_ID = 'replace-owner-name-input'
 export const REPLACE_OWNER_ADDRESS_INPUT_TEST_ID = 'replace-owner-address-testid'
 export const REPLACE_OWNER_NEXT_BTN_TEST_ID = 'replace-owner-next-btn'
 
-import { OwnerValues } from '../..'
-
-const formMutators: Record<
-  string,
-  Mutator<{ setOwnerAddress: { address: string }; setOwnerName: { name: string } }>
-> = {
+const formMutators = {
   setOwnerAddress: (args, state, utils) => {
     utils.changeValue(state, 'ownerAddress', () => args[0])
   },
-  setOwnerName: (args, state, utils) => {
-    utils.changeValue(state, 'ownerName', () => args[0])
-  },
 }
 
-type NewOwnerProps = {
-  ownerAddress: string
-  ownerName: string
-}
-
-type OwnerFormProps = {
-  onClose: () => void
-  onSubmit: (values: NewOwnerProps) => void
-  owner: OwnerData
-  initialValues?: OwnerValues
-}
-
-export const OwnerForm = ({ onClose, onSubmit, owner, initialValues }: OwnerFormProps): ReactElement => {
-  const classes = useStyles()
-
-  const handleSubmit = (values: NewOwnerProps) => {
+const OwnerForm = ({ classes, onClose, onSubmit, ownerAddress, ownerName }) => {
+  const handleSubmit = (values) => {
     onSubmit(values)
   }
-  const addressBookMap = useSelector(currentNetworkAddressBookAsMap)
-  const { address: safeAddress = '', owners } = useSelector(currentSafe) ?? {}
+  const owners = useSelector(safeOwnersAddressesListSelector)
   const ownerDoesntExist = uniqueAddress(owners)
-  const ownerAddressIsNotSafeAddress = addressIsNotCurrentSafe(safeAddress)
 
   return (
     <>
@@ -85,14 +54,7 @@ export const OwnerForm = ({ onClose, onSubmit, owner, initialValues }: OwnerForm
         </IconButton>
       </Row>
       <Hairline />
-      <GnoForm
-        formMutators={formMutators}
-        onSubmit={handleSubmit}
-        initialValues={{
-          ownerName: initialValues?.name,
-          ownerAddress: initialValues?.address,
-        }}
-      >
+      <GnoForm formMutators={formMutators} onSubmit={handleSubmit}>
         {(...args) => {
           const mutators = args[3]
 
@@ -120,14 +82,22 @@ export const OwnerForm = ({ onClose, onSubmit, owner, initialValues }: OwnerForm
                   <Paragraph>Current owner</Paragraph>
                 </Row>
                 <Row className={classes.owner}>
-                  <Col align="center" xs={12}>
-                    <EthHashInfo
-                      hash={owner.address}
-                      name={owner.name}
-                      showCopyBtn
-                      showAvatar
-                      explorerUrl={getExplorerInfo(owner.address)}
-                    />
+                  <Col align="center" xs={1}>
+                    <Identicon address={ownerAddress} diameter={32} />
+                  </Col>
+                  <Col xs={7}>
+                    <Block className={classNames(classes.name, classes.userName)}>
+                      <Paragraph noMargin size="lg" weight="bolder">
+                        {ownerName}
+                      </Paragraph>
+                      <Block className={classes.user} justify="center">
+                        <Paragraph className={classes.address} color="disabled" noMargin size="md">
+                          {ownerAddress}
+                        </Paragraph>
+                        <CopyBtn content={ownerAddress} />
+                        <ExplorerButton explorerUrl={getExplorerInfo(ownerAddress)} />
+                      </Block>
+                    </Block>
                   </Col>
                 </Row>
                 <Row>
@@ -136,35 +106,27 @@ export const OwnerForm = ({ onClose, onSubmit, owner, initialValues }: OwnerForm
                 <Row margin="md">
                   <Col xs={8}>
                     <Field
+                      className={classes.addressInput}
                       component={TextField}
                       name="ownerName"
                       placeholder="Owner name*"
                       testId={REPLACE_OWNER_NAME_INPUT_TEST_ID}
                       text="Owner name*"
                       type="text"
-                      validate={composeValidators(required, validAddressBookName)}
+                      validate={composeValidators(required, minMaxLength(1, 50))}
                     />
-                    <OnChange name="ownerAddress">
-                      {async (address: string) => {
-                        if (isValidAddress(address)) {
-                          const ownerName = addressBookMap[address]?.name
-                          if (ownerName) {
-                            mutators.setOwnerName(ownerName)
-                          }
-                        }
-                      }}
-                    </OnChange>
                   </Col>
                 </Row>
                 <Row margin="md">
                   <Col xs={8}>
                     <AddressInput
+                      className={classes.addressInput}
                       fieldMutator={mutators.setOwnerAddress}
                       name="ownerAddress"
                       placeholder="Owner address*"
                       testId={REPLACE_OWNER_ADDRESS_INPUT_TEST_ID}
                       text="Owner address*"
-                      validators={[ownerDoesntExist, ownerAddressIsNotSafeAddress]}
+                      validators={[ownerDoesntExist]}
                     />
                   </Col>
                   <Col center="xs" className={classes} middle="xs" xs={1}>
@@ -172,12 +134,22 @@ export const OwnerForm = ({ onClose, onSubmit, owner, initialValues }: OwnerForm
                   </Col>
                 </Row>
               </Block>
-              <Modal.Footer>
-                <Modal.Footer.Buttons
-                  cancelButtonProps={{ onClick: onClose }}
-                  confirmButtonProps={{ testId: REPLACE_OWNER_NEXT_BTN_TEST_ID, text: 'Next' }}
-                />
-              </Modal.Footer>
+              <Hairline />
+              <Row align="center" className={classes.buttonRow}>
+                <Button className={classes.button} minWidth={140} onClick={onClose}>
+                  Cancel
+                </Button>
+                <Button
+                  className={classes.button}
+                  color="primary"
+                  minWidth={140}
+                  testId={REPLACE_OWNER_NEXT_BTN_TEST_ID}
+                  type="submit"
+                  variant="contained"
+                >
+                  Next
+                </Button>
+              </Row>
             </>
           )
         }}
@@ -185,3 +157,5 @@ export const OwnerForm = ({ onClose, onSubmit, owner, initialValues }: OwnerForm
     </>
   )
 }
+
+export default withStyles(styles as any)(OwnerForm)

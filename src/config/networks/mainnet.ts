@@ -1,20 +1,17 @@
-import EtherLogo from 'src/config/assets/token_eth.svg'
+import hscLogo from 'src/config/assets/token_hsc.svg'
 import { EnvironmentSettings, ETHEREUM_NETWORK, NetworkConfig } from 'src/config/networks/network.d'
-import { ETHGASSTATION_API_KEY } from 'src/utils/constants'
 
 const baseConfig: EnvironmentSettings = {
-  clientGatewayUrl: 'https://safe-client.mainnet.staging.gnosisdev.com/v1',
-  txServiceUrl: 'https://safe-transaction.mainnet.staging.gnosisdev.com/api/v1',
-  safeUrl: 'https://gnosis-safe.io/app',
+  txServiceUrl: 'https://safe-transaction-app.hoosmartchain.com/api/v1',
   safeAppsUrl: 'https://safe-apps.dev.gnosisdev.com',
   gasPriceOracle: {
     url: 'https://ethgasstation.info/json/ethgasAPI.json',
     gasParameter: 'average',
   },
-  rpcServiceUrl: 'https://mainnet.infura.io:443/v3',
-  networkExplorerName: 'Etherscan',
-  networkExplorerUrl: 'https://etherscan.io',
-  networkExplorerApiUrl: 'https://api.etherscan.io/api',
+  rpcServiceUrl: 'https://http-mainnet.hoosmartchain.com',
+  networkExplorerName: 'hsc',
+  networkExplorerUrl: 'https://hooscan.com',
+  networkExplorerApiUrl: 'https://hooscan.com/api',
 }
 
 const mainnet: NetworkConfig = {
@@ -28,8 +25,7 @@ const mainnet: NetworkConfig = {
     },
     production: {
       ...baseConfig,
-      clientGatewayUrl: 'https://safe-client.mainnet.gnosis.io/v1',
-      txServiceUrl: 'https://safe-transaction.mainnet.gnosis.io/api/v1',
+      txServiceUrl: 'https://safe-transaction-app.hoosmartchain.com/api/v1',
       safeAppsUrl: 'https://apps.gnosis-safe.io',
     },
   },
@@ -40,11 +36,11 @@ const mainnet: NetworkConfig = {
     label: 'Mainnet',
     isTestNet: false,
     nativeCoin: {
-      address: '0x0000000000000000000000000000000000000000',
-      name: 'Ether',
-      symbol: 'ETH',
+      address: '0x000',
+      name: 'HOO',
+      symbol: 'HOO',
       decimals: 18,
-      logoUri: EtherLogo,
+      logoUri: hscLogo,
     },
   },
 }

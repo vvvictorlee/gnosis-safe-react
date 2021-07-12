@@ -1,20 +1,17 @@
 import React, { useState } from 'react'
 import styled, { css } from 'styled-components'
 import { useSelector } from 'react-redux'
-import { IconText, Loader, Menu, Text, Icon } from '@gnosis.pm/safe-react-components'
-import IconButton from '@material-ui/core/IconButton'
+import { GenericModal, IconText, Loader, Menu } from '@gnosis.pm/safe-react-components'
 
-import { Modal } from 'src/components/Modal'
-import { safeAddressFromUrl } from 'src/logic/safe/store/selectors'
+import { safeParamAddressFromStateSelector } from 'src/logic/safe/store/selectors'
 import AppCard from 'src/routes/safe/components/Apps/components/AppCard'
 import AddAppIcon from 'src/routes/safe/components/Apps/assets/addApp.svg'
 import { useRouteMatch, Link } from 'react-router-dom'
 import { SAFELIST_ADDRESS } from 'src/routes/routes'
 
 import { useAppList } from '../hooks/useAppList'
-import { SAFE_APP_FETCH_STATUS, SafeApp } from '../types'
+import { SAFE_APP_FETCH_STATUS, SafeApp } from '../types.d'
 import AddAppForm from './AddAppForm'
-import { AppData } from '../api/fetchSafeAppsList'
 
 const Wrapper = styled.div`
   height: 100%;
@@ -59,40 +56,17 @@ const Breadcrumb = styled.div`
   height: 51px;
 `
 
-const IconBtn = styled(IconButton)`
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 10;
-  padding: 5px;
-  opacity: 0;
-
-  transition: opacity 0.2s ease-in-out;
-`
-
-const AppContainer = styled.div`
-  position: relative;
-
-  &:hover {
-    ${IconBtn} {
-      opacity: 1;
-    }
-  }
-`
-
-const isAppLoading = (app: SafeApp) => SAFE_APP_FETCH_STATUS.LOADING === app.fetchStatus
-const isCustomApp = (appUrl: string, staticAppsList: AppData[]) => !staticAppsList.some(({ url }) => url === appUrl)
-
 const AppsList = (): React.ReactElement => {
   const matchSafeWithAddress = useRouteMatch<{ safeAddress: string }>({ path: `${SAFELIST_ADDRESS}/:safeAddress` })
-  const safeAddress = useSelector(safeAddressFromUrl)
-  const { appList, removeApp, staticAppsList } = useAppList()
+  const safeAddress = useSelector(safeParamAddressFromStateSelector)
+  const { appList } = useAppList()
   const [isAddAppModalOpen, setIsAddAppModalOpen] = useState<boolean>(false)
-  const [appToRemove, setAppToRemove] = useState<SafeApp | null>(null)
 
   const openAddAppModal = () => setIsAddAppModalOpen(true)
 
   const closeAddAppModal = () => setIsAddAppModalOpen(false)
+
+  const isAppLoading = (app: SafeApp) => SAFE_APP_FETCH_STATUS.LOADING === app.fetchStatus
 
   if (!appList.length || !safeAddress) {
     return (
@@ -116,23 +90,9 @@ const AppsList = (): React.ReactElement => {
           {appList
             .filter((a) => a.fetchStatus !== SAFE_APP_FETCH_STATUS.ERROR)
             .map((a) => (
-              <AppContainer key={a.url}>
-                <StyledLink key={a.url} to={`${matchSafeWithAddress?.url}/apps?appUrl=${encodeURI(a.url)}`}>
-                  <AppCard isLoading={isAppLoading(a)} iconUrl={a.iconUrl} name={a.name} description={a.description} />
-                </StyledLink>
-                {isCustomApp(a.url, staticAppsList) && (
-                  <IconBtn
-                    title="Remove"
-                    onClick={(e) => {
-                      e.stopPropagation()
-
-                      setAppToRemove(a)
-                    }}
-                  >
-                    <Icon size="sm" type="delete" color="error" />
-                  </IconBtn>
-                )}
-              </AppContainer>
+              <StyledLink key={a.url} to={`${matchSafeWithAddress?.url}/apps?appUrl=${encodeURI(a.url)}`}>
+                <AppCard isLoading={isAppLoading(a)} iconUrl={a.iconUrl} name={a.name} description={a.description} />
+              </StyledLink>
             ))}
         </CardsWrapper>
 
@@ -146,42 +106,11 @@ const AppsList = (): React.ReactElement => {
       </ContentWrapper>
 
       {isAddAppModalOpen && (
-        <Modal title="Add app" description="Add a custom app to the list of apps" handleClose={closeAddAppModal}>
-          <Modal.Header onClose={closeAddAppModal}>
-            <Modal.Header.Title>Add custom app</Modal.Header.Title>
-          </Modal.Header>
-          <AddAppForm closeModal={closeAddAppModal} appList={appList} />
-        </Modal>
-      )}
-
-      {appToRemove && (
-        <Modal title="Remove app" description="Confirm for the app removal" handleClose={() => setAppToRemove(null)}>
-          <Modal.Header onClose={() => setAppToRemove(null)}>
-            <Modal.Header.Title>Remove app</Modal.Header.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <Text size="xl">
-              This action will remove{' '}
-              <Text size="xl" strong as="span">
-                {appToRemove.name}
-              </Text>{' '}
-              from the interface
-            </Text>
-          </Modal.Body>
-          <Modal.Footer>
-            <Modal.Footer.Buttons
-              cancelButtonProps={{ onClick: () => setAppToRemove(null) }}
-              confirmButtonProps={{
-                color: 'error',
-                onClick: () => {
-                  removeApp(appToRemove.url)
-                  setAppToRemove(null)
-                },
-                text: 'Remove',
-              }}
-            />
-          </Modal.Footer>
-        </Modal>
+        <GenericModal
+          title="Add custom app"
+          body={<AddAppForm closeModal={closeAddAppModal} appList={appList} />}
+          onClose={closeAddAppModal}
+        />
       )}
     </Wrapper>
   )

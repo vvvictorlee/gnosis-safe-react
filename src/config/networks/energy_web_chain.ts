@@ -4,9 +4,7 @@ import { EnvironmentSettings, ETHEREUM_NETWORK, NetworkConfig, WALLETS } from 's
 // @todo (agustin) we need to use fixed gasPrice because the oracle is not working right now and it's returning 0
 // once the oracle is fixed we need to remove the fixed value
 const baseConfig: EnvironmentSettings = {
-  clientGatewayUrl: 'https://safe-client.ewc.gnosis.io/v1',
   txServiceUrl: 'https://safe-transaction.ewc.gnosis.io/api/v1',
-  safeUrl: 'https://ewc.gnosis-safe.io/app',
   safeAppsUrl: 'https://safe-apps-ewc.staging.gnosisdev.com',
   gasPriceOracle: {
     url: 'https://station.energyweb.org',
@@ -39,7 +37,7 @@ const mainnet: NetworkConfig = {
     label: 'EWC',
     isTestNet: false,
     nativeCoin: {
-      address: '0x0000000000000000000000000000000000000000',
+      address: '0x000',
       name: 'Energy web token',
       symbol: 'EWT',
       decimals: 18,
@@ -50,12 +48,15 @@ const mainnet: NetworkConfig = {
     WALLETS.TREZOR,
     WALLETS.LEDGER,
     WALLETS.COINBASE,
+    WALLETS.DAPPER,
     WALLETS.FORTMATIC,
     WALLETS.OPERA,
     WALLETS.OPERA_TOUCH,
     WALLETS.PORTIS,
     WALLETS.TORUS,
     WALLETS.TRUST,
+    WALLETS.UNILOGIN,
+    WALLETS.WALLET_CONNECT,
     WALLETS.WALLET_LINK,
     WALLETS.AUTHEREUM,
     WALLETS.LATTICE,

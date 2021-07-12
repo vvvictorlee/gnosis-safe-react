@@ -1,25 +1,31 @@
-import React, { ReactElement } from 'react'
+import * as React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { ETHEREUM_NETWORK } from 'src/config/networks/network.d'
 
 import Layout from 'src/routes/load/components/Layout'
-import { AddressBookEntry, makeAddressBookEntry } from 'src/logic/addressBook/model/addressBook'
-import { addressBookSafeLoad } from 'src/logic/addressBook/store/actions'
-import { FIELD_LOAD_ADDRESS } from 'src/routes/load/components/fields'
+import { FIELD_LOAD_ADDRESS, FIELD_LOAD_NAME } from '../components/fields'
 
 import Page from 'src/components/layout/Page'
+import { getGnosisSafeInstanceAt } from 'src/logic/contracts/safeContracts'
 import { saveSafes, loadStoredSafes } from 'src/logic/safe/utils'
-import { getAccountsFrom, getNamesFrom } from 'src/routes/open/utils/safeDataExtractor'
+import { getNamesFrom, getOwnersFrom } from 'src/routes/open/utils/safeDataExtractor'
 import { SAFELIST_ADDRESS } from 'src/routes/routes'
 import { buildSafe } from 'src/logic/safe/store/actions/fetchSafe'
 import { history } from 'src/store'
-import { SafeRecordProps } from 'src/logic/safe/store/models/safe'
+import { SafeOwner, SafeRecordProps } from 'src/logic/safe/store/models/safe'
+import { List } from 'immutable'
 import { checksumAddress } from 'src/utils/checksumAddress'
-import { isValidAddress } from 'src/utils/isValidAddress'
-import { providerNameSelector, userAccountSelector } from 'src/logic/wallets/store/selectors'
+import { networkSelector, providerNameSelector, userAccountSelector } from 'src/logic/wallets/store/selectors'
 import { addOrUpdateSafe } from 'src/logic/safe/store/actions/addOrUpdateSafe'
 
-export const loadSafe = async (safeAddress: string, addSafe: (safe: SafeRecordProps) => void): Promise<void> => {
-  const safeProps = await buildSafe(safeAddress)
+export const loadSafe = async (
+  safeName: string,
+  safeAddress: string,
+  owners: List<SafeOwner>,
+  addSafe: (safe: SafeRecordProps) => void,
+): Promise<void> => {
+  const safeProps = await buildSafe(safeAddress, safeName)
+  safeProps.owners = owners
 
   const storedSafes = (await loadStoredSafes()) || {}
 
@@ -29,27 +35,16 @@ export const loadSafe = async (safeAddress: string, addSafe: (safe: SafeRecordPr
   await addSafe(safeProps)
 }
 
-interface ReviewSafeCreationValues {
-  confirmations: string
-  name: string
-  owner0Address: string
-  owner0Name: string
-  safeCreationSalt: number
-}
-
-interface LoadForm {
+export interface LoadFormValues {
   name: string
   address: string
   threshold: string
-  owner0Address: string
-  owner0Name: string
 }
 
-export type LoadFormValues = ReviewSafeCreationValues | LoadForm
-
-const Load = (): ReactElement => {
+const Load = (): React.ReactElement => {
   const dispatch = useDispatch()
   const provider = useSelector(providerNameSelector)
+  const network = useSelector(networkSelector)
   const userAddress = useSelector(userAccountSelector)
 
   const addSafeHandler = async (safe: SafeRecordProps) => {
@@ -57,32 +52,22 @@ const Load = (): ReactElement => {
   }
   const onLoadSafeSubmit = async (values: LoadFormValues) => {
     let safeAddress = values[FIELD_LOAD_ADDRESS]
-
-    if (!isValidAddress(safeAddress)) {
-      console.error('failed to add Safe address', JSON.stringify(values))
+    // TODO: review this check. It doesn't seems to be necessary at this point
+    if (!safeAddress) {
+      console.error('failed to load Safe address', JSON.stringify(values))
       return
     }
 
-    const ownersNames = getNamesFrom(values)
-    const ownersAddresses = getAccountsFrom(values)
-
-    const owners = ownersAddresses.reduce((acc, address, index) => {
-      if (ownersNames[index]) {
-        // Do not add owners to addressbook if names are empty
-        const newAddressBookEntry = makeAddressBookEntry({
-          address,
-          name: ownersNames[index],
-        })
-        acc.push(newAddressBookEntry)
-      }
-      return acc
-    }, [] as AddressBookEntry[])
-    const safe = makeAddressBookEntry({ address: safeAddress, name: values.name })
-    await dispatch(addressBookSafeLoad([...owners, safe]))
-
     try {
+      const safeName = values[FIELD_LOAD_NAME]
       safeAddress = checksumAddress(safeAddress)
-      await loadSafe(safeAddress, addSafeHandler)
+      const ownerNames = getNamesFrom(values)
+
+      const gnosisSafe = getGnosisSafeInstanceAt(safeAddress)
+      const ownerAddresses = await gnosisSafe.methods.getOwners().call()
+      const owners = getOwnersFrom(ownerNames, ownerAddresses.slice().sort())
+
+      await loadSafe(safeName, safeAddress, owners, addSafeHandler)
 
       const url = `${SAFELIST_ADDRESS}/${safeAddress}/balances`
       history.push(url)
@@ -93,7 +78,12 @@ const Load = (): ReactElement => {
 
   return (
     <Page>
-      <Layout onLoadSafeSubmit={onLoadSafeSubmit} userAddress={userAddress} provider={provider} />
+      <Layout
+        onLoadSafeSubmit={onLoadSafeSubmit}
+        network={ETHEREUM_NETWORK[network]}
+        userAddress={userAddress}
+        provider={provider}
+      />
     </Page>
   )
 }

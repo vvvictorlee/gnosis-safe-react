@@ -1,22 +1,24 @@
-import { EthHashInfo } from '@gnosis.pm/safe-react-components'
-import React, { ReactElement } from 'react'
+import React from 'react'
+import styled from 'styled-components'
 
-type Props = {
-  address: string
-  iconUrl?: string
-  iconUrlFallback?: string
-  text?: string
-}
+const Wrapper = styled.div`
+  display: flex;
+  align-items: center;
+`
+const Icon = styled.img`
+  max-width: 15px;
+  max-height: 15px;
+`
+const Text = styled.span`
+  margin-left: 5px;
+  height: 17px;
+`
 
-export const CustomIconText = ({ address, iconUrl, text, iconUrlFallback }: Props): ReactElement => (
-  <EthHashInfo
-    hash={address}
-    showHash={false}
-    avatarSize="sm"
-    showAvatar
-    customAvatar={iconUrl || undefined}
-    customAvatarFallback={iconUrlFallback}
-    name={text}
-    textSize="xl"
-  />
+const CustomIconText = ({ iconUrl, text }: { iconUrl: string; text?: string }) => (
+  <Wrapper>
+    <Icon alt={text} src={iconUrl} />
+    {text && <Text>{text}</Text>}
+  </Wrapper>
 )
+
+export default CustomIconText

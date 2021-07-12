@@ -8,9 +8,6 @@ describe('Test JS', () => {
       owner1Address: 'bar',
       owner2Address: 'baz',
       owners: 3,
-      confirmations: '0',
-      name: '',
-      safeCreationSalt: 0,
     }
 
     expect(getAccountsFrom(safe)).toEqual(['foo', 'bar', 'baz'])
@@ -18,15 +15,9 @@ describe('Test JS', () => {
   it('return the names of owners', () => {
     const safe = {
       owner0Name: 'foo',
-      owner0Address: '0x',
       owner1Name: 'bar',
-      owner1Address: '0x',
       owner2Name: 'baz',
-      owner2Address: '0x',
       owners: 3,
-      confirmations: '0',
-      name: '',
-      safeCreationSalt: 0,
     }
 
     expect(getNamesFrom(safe)).toEqual(['foo', 'bar', 'baz'])
@@ -40,15 +31,12 @@ describe('Test JS', () => {
       owner2Name: 'bazName',
       owner2Address: 'bazAddress',
       owners: 1,
-      confirmations: '0',
-      name: '',
-      safeCreationSalt: 0,
     }
 
-    expect(getNamesFrom(safe)).toEqual(['fooName', 'barName', 'bazName'])
-    expect(getAccountsFrom(safe)).toEqual(['fooAddress', 'barAddress', 'bazAddress'])
+    expect(getNamesFrom(safe)).toEqual(['fooName'])
+    expect(getAccountsFrom(safe)).toEqual(['fooAddress'])
   })
-  it('return name and address keys ordered alphabetically', () => {
+  it('return name and address ordered alphabetically', () => {
     const safe = {
       owner1Name: 'barName',
       owner1Address: 'barAddress',
@@ -57,19 +45,14 @@ describe('Test JS', () => {
       owner2Address: 'bazAddress',
       owner0Address: 'fooAddress',
       owners: 1,
-      confirmations: '0',
-      name: '',
-      safeCreationSalt: 0,
     }
 
-    expect(getNamesFrom(safe)).toEqual(['fooName', 'barName', 'bazName'])
-    expect(getAccountsFrom(safe)).toEqual(['fooAddress', 'barAddress', 'bazAddress'])
+    expect(getNamesFrom(safe)).toEqual(['fooName'])
+    expect(getAccountsFrom(safe)).toEqual(['fooAddress'])
   })
   it('return the number of required confirmations', () => {
     const safe = {
       confirmations: '1',
-      name: '',
-      safeCreationSalt: 0,
     }
 
     expect(getThresholdFrom(safe)).toEqual(1)

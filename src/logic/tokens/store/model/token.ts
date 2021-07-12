@@ -1,6 +1,4 @@
 import { Record, RecordOf } from 'immutable'
-import { TokenType } from 'src/logic/safe/store/models/types/gateway'
-import { BalanceRecord } from 'src/logic/tokens/store/actions/fetchSafeTokens'
 
 export type TokenProps = {
   address: string
@@ -8,8 +6,7 @@ export type TokenProps = {
   symbol: string
   decimals: number | string
   logoUri: string
-  balance: BalanceRecord
-  type?: TokenType
+  balance: number | string
 }
 
 export const makeToken = Record<TokenProps>({
@@ -18,10 +15,7 @@ export const makeToken = Record<TokenProps>({
   symbol: '',
   decimals: 0,
   logoUri: '',
-  balance: {
-    fiatBalance: '0',
-    tokenBalance: '0',
-  },
+  balance: 0,
 })
 // balance is only set in extendedSafeTokensSelector when we display user's token balances
 

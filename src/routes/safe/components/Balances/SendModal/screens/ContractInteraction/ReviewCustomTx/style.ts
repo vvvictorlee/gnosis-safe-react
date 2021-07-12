@@ -1,4 +1,4 @@
-import { background, border, lg, md, secondaryText, sm } from 'src/theme/variables'
+import { border, lg, md, secondaryText, sm } from 'src/theme/variables'
 import { createStyles } from '@material-ui/core'
 
 export const styles = createStyles({
@@ -6,7 +6,7 @@ export const styles = createStyles({
     padding: `${md} ${lg}`,
     justifyContent: 'flex-start',
     boxSizing: 'border-box',
-    maxHeight: '74px',
+    maxHeight: '75px',
   },
   annotation: {
     letterSpacing: '-1px',
@@ -46,10 +46,13 @@ export const styles = createStyles({
   buttonRow: {
     height: '84px',
     justifyContent: 'center',
-    gap: '16px',
+    '& > button': {
+      fontFamily: 'Averta',
+      fontSize: md,
+    },
   },
-  gasCostsContainer: {
-    backgroundColor: background,
-    padding: `${sm} ${lg}`,
+  submitButton: {
+    boxShadow: '1px 2px 10px 0 rgba(212, 212, 211, 0.59)',
+    marginLeft: '15px',
   },
 })
