@@ -2,7 +2,7 @@ import hscLogo from 'src/config/assets/token_hsc.svg'
 import { EnvironmentSettings, ETHEREUM_NETWORK, NetworkConfig } from 'src/config/networks/network.d'
 
 const baseConfig: EnvironmentSettings = {
-  txServiceUrl: 'https://safe-transaction-app.hoosmartchain.com/api/v1',
+  txServiceUrl: 'https://safe-transaction.hoosmartchain.com/api/v1',
   safeAppsUrl: 'https://safe-apps.dev.gnosisdev.com',
   gasPriceOracle: {
     url: 'https://ethgasstation.info/json/ethgasAPI.json',
