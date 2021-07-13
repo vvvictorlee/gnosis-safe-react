@@ -1,11 +1,16 @@
 import { List } from 'immutable'
-import { withSnackbar } from 'notistack'
+import { withSnackbar, OptionsObject } from 'notistack'
 import { Component } from 'react'
 import { connect } from 'react-redux'
 
 import actions from './actions'
 import selector from './selector'
-
+type Notification = {
+  message: string
+  options: OptionsObject
+  key?: string
+  dismissed?: boolean
+}
 class Notifier extends Component<any> {
   displayed: any = []
 
@@ -18,7 +23,7 @@ class Notifier extends Component<any> {
     }
     let notExists = false
     for (let i = 0; i < newSnacks.size; i += 1) {
-      const newSnack = newSnacks.get(i)
+      const newSnack = newSnacks.get(i) as Notification
 
       if (newSnack.dismissed) {
         closeSnackbar(newSnack.key)
