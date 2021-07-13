@@ -16,6 +16,7 @@ export type Notification = {
   message: string
   options: OptionsObject
   key?: number | string
+  dismissed?: boolean
 }
 
 const NOTIFICATION_IDS = {
