@@ -66,13 +66,13 @@ export const isArrayParameter = (parameter: string): boolean => /(\[\d*])+$/.tes
 
 export const handleSubmitError = (error: SubmissionErrors, values: Record<string, string>): Record<string, string> => {
   for (const key in values) {
-    if (values.hasOwnProperty(key) && values[key] === error.value) {
+    if (values.hasOwnProperty(key) && error !== undefined && values[key] === error.value) {
       return { [key]: error.reason }
     }
   }
 
   // .call() failed and we're logging a generic error
-  return { [FORM_ERROR]: error.message }
+  return { [FORM_ERROR]: error ? error.message : undefined }
 }
 
 export const generateFormFieldKey = (type: string, signatureHash: string, index: number): string => {
