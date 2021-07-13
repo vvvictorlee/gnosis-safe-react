@@ -21,8 +21,8 @@ const styles = () => ({
   },
 })
 
-const TextareaField = ({ classes, ...props }) => (
+const TextAreaField = ({ classes, ...props }) => (
   <Field {...props} className={classes.textarea} component={TextField} multiline rows="5" />
 )
 
-export default withStyles(styles as any)(TextareaField)
+export default withStyles(styles as any)(TextAreaField)
