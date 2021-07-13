@@ -36,7 +36,7 @@ type Token = {
 }
 
 export enum ETHEREUM_NETWORK {
-  MAINNET = 56,
+  MAINNET = 70,
   MORDEN = 2,
   ROPSTEN = 3,
   RINKEBY = 4,
