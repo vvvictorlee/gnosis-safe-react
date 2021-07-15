@@ -335,7 +335,7 @@ const SafeDeployment = ({ creationTxHash, onCancel, onRetry, onSuccess, submitte
         <BodyLoader>{!error && stepIndex <= 4 && <Img alt="Loader dots" src={LoaderDotsSvg} />}</BodyLoader>
 
         <BodyInstruction>
-          <FullParagraph color="primary" inverseColors={confirmationStep} noMargin size="md">
+          <FullParagraph color="primary" inversecolors={confirmationStep} noMargin size="md">
             {error ? 'You can Cancel or Retry the Safe creation process.' : steps[stepIndex].instruction}
           </FullParagraph>
         </BodyInstruction>
