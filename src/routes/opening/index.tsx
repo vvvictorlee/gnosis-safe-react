@@ -256,21 +256,30 @@ const SafeDeployment = ({ creationTxHash, onCancel, onRetry, onSuccess, submitte
           safeAddress = receipt.events.ProxyCreation.returnValues.proxy
         } else {
           // get the address for the just created safe
+          //   {
+          //     type: 'address',
+          //     name: 'ProxyCreation',
+          //   },
           const events = web3.eth.abi.decodeLog(
             [
               {
+                indexed: false,
+                name: 'proxy',
                 type: 'address',
-                name: 'ProxyCreation',
+              },
+              {
+                indexed: false,
+                name: 'singleton',
+                type: 'address',
               },
             ],
-            receipt.logs[0].data,
-            receipt.logs[0].topics,
+            receipt.logs[1].data,
+            receipt.logs[1].topics,
           )
           safeAddress = events[0]
         }
 
         setCreatedSafeAddress(safeAddress)
-
         interval = setInterval(async () => {
           const code = await web3.eth.getCode(safeAddress)
           if (code !== EMPTY_DATA) {
