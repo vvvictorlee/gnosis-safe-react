@@ -15,7 +15,7 @@ import Row from 'src/components/layout/Row'
 import { border, headerHeight, md, screenSm, sm } from 'src/theme/variables'
 import { useStateHandler } from 'src/logic/hooks/useStateHandler'
 
-import SafeLogo from '../assets/binance_dex.svg'
+import SafeLogo from '../assets/hsc.svg'
 
 const styles = () => ({
   root: {
