@@ -1,5 +1,5 @@
 import { AbstractProvider } from 'web3-core'
-import { getWeb3 } from 'src/logic/wallets/getWeb3'
+import { getWeb3, getNetworkIdFrom } from 'src/logic/wallets/getWeb3'
 import { EMPTY_DATA } from 'src/logic/wallets/ethTransactions'
 
 const EIP712_NOT_SUPPORTED_ERROR_MSG = "EIP712 is not supported by user's wallet"
@@ -17,9 +17,16 @@ const generateTypedDataFrom = async ({
   to,
   valueInWei,
 }) => {
+  const web3 = getWeb3()
+  const networkId = await getNetworkIdFrom(web3)
+  //const eip712WithChainId = semverSatisfies(safeVersion, '>=1.3.0')
   const typedData = {
     types: {
       EIP712Domain: [
+        {
+          type: 'uint256',
+          name: 'chainId',
+        },
         {
           type: 'address',
           name: 'verifyingContract',
@@ -39,6 +46,7 @@ const generateTypedDataFrom = async ({
       ],
     },
     domain: {
+      chainId: networkId,
       verifyingContract: safeAddress,
     },
     primaryType: 'SafeTx',
