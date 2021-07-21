@@ -1,5 +1,5 @@
 import hscLogo from 'src/config/assets/token_hsc.svg'
-import { EnvironmentSettings, ETHEREUM_NETWORK, NetworkConfig } from 'src/config/networks/network.d'
+import { EnvironmentSettings, ETHEREUM_NETWORK, FEATURES, NetworkConfig } from 'src/config/networks/network.d'
 
 const baseConfig: EnvironmentSettings = {
   txServiceUrl: 'https://safe-transaction.hoosmartchain.com/api/v1',
@@ -43,6 +43,7 @@ const mainnet: NetworkConfig = {
       logoUri: hscLogo,
     },
   },
+  disabledFeatures: [FEATURES.SAFE_APPS],
 }
 
 export default mainnet
